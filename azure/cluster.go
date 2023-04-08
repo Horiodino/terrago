@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"text/template"
 )
 
 func clustercreate(clustername string, rgname string, rbac bool, location string, nodepool int, os_type string, dnsprefix string) {
 	fmt.Println("Creating cluster: ", clustername, " in resource group: ", rgname)
-	template := `resource "azurerm_kubernetes_cluster" "example" {
+	t := `resource "azurerm_kubernetes_cluster" "example" {
 		name                = "{{.Clustername}}"
 		location            = "{{.Location}}"
 		resource_group_name = "{{.RGname}}"
@@ -36,17 +37,17 @@ func clustercreate(clustername string, rgname string, rbac bool, location string
 		  Environment = "{{.Environment}}}"
 		}`
 
-	temp, err := template.New("template").Parse(template)
+	temp, err := template.New("template").Parse(t)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// issue
-	if resourceGroup == "" {
-		fmt.Printf("Resource group not specified using default resource group: %s", rgname)
-		resourceGroup = rgname
-		location = "East US"
-	}
+	// if resourceGroup == "" {
+	// 	fmt.Printf("Resource group not specified using default resource group: %s", rgname)
+	// 	resourceGroup = rgname
+	// 	location = "East US"
+	// }
 
 	data := struct {
 		Clustername string
@@ -68,7 +69,7 @@ func clustercreate(clustername string, rgname string, rbac bool, location string
 		os.Exit(1)
 	}
 
-	var file, err = os.Create("cluster.tf")
+	var file, _ err = os.Create("cluster.tf")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"text/template"
 
 	"github.com/spf13/cobra"
 )
@@ -21,11 +22,11 @@ var terrago = &cobra.Command{
 	Long: `terrago is a CLI tool for Terraform`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		template := `resource "azurerm_resource_group" "{{.RgName}}" {
+		t := `resource "azurerm_resource_group" "{{.RgName}}" {
 			name     = "{{.RgName}}"
 			location = "eastus"
 		}`
-		temp, err := template.New("template").Parse(template)
+		temp, err := template.New("template").Parse(t)
 		if err != nil {
 			log.Fatal(err)
 		}
