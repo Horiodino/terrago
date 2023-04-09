@@ -1,6 +1,7 @@
 package azure
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -18,7 +19,7 @@ func clustercreate(clustername string, rgname string, rbac bool, location string
 	  
 		agent_pool_profile {
 		  name            = "default"
-		  count           = "{{.nodepool}}"
+		  count           = {{.nodepool}} // removed quotes around nodepool
 		  vm_size         = "Standard_DS2_v2"
 		  os_type         = "{{.os_type}}"
 		  vnet_subnet_id  = "/subscriptions/subscription_id/resourceGroups/rg_name/providers/Microsoft.Network/virtualNetworks/vnet_name/subnets/aks-subnet"
@@ -30,25 +31,26 @@ func clustercreate(clustername string, rgname string, rbac bool, location string
 		}
 	  
 		role_based_access_control {
-		  enabled = "{{.RBAC}}"
+		  enabled = {{.RBAC}} // removed quotes around RBAC
 		}
 	  
 		tags = {
-		  Environment = "{{.Environment}}}"
-		}`
+		  Environment = "{{.Environment}}" // there's no "Environment" field in the data struct
+		}
+	}`
 
 	temp, err := template.New("template").Parse(t)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// issue
-	// if resourceGroup == "" {
-	// 	fmt.Printf("Resource group not specified using default resource group: %s", rgname)
-	// 	resourceGroup = rgname
-	// 	location = "East US"
-	// }
+	// replaced resourceGroup with rgname and removed location assignment
+	if rgname == "" {
+		fmt.Printf("Resource group not specified using default resource group: %s\n", rgname)
+		rgname = "default-rg"
+	}
 
+	//here we are creating a struct to store the data
 	data := struct {
 		Clustername string
 		Location    string
@@ -57,27 +59,27 @@ func clustercreate(clustername string, rgname string, rbac bool, location string
 		dns_prefix  string
 	}{
 		Clustername: clustername,
-		Location:    location,
 		RGname:      rgname,
 		nodepool:    nodepool,
 		dns_prefix:  dnsprefix,
 	}
 
-	var result string
+	//here we are creating a new buffer to store the result of the template
+	var result bytes.Buffer
 	if err := temp.Execute(&result, data); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	var file, _ err = os.Create("cluster.tf")
+	file, err := os.Create("cluster.tf")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	if _, err := file.WriteString(result); err != nil {
+	//here we are writing the result to the file
+	if _, err := result.WriteTo(file); err != nil {
 		log.Fatal(err)
-		os.Exit(1)
 	}
 
 	fmt.Println("File Created Successfully", file.Name())

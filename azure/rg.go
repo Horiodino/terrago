@@ -1,4 +1,4 @@
-package main
+package azure
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ var (
 	rg_name string
 )
 
-// rgname represents the rgname command
+// rgname represents the terrago command
 var rgname = &cobra.Command{
 	Use:  "rgname",
 	Long: `rgname is a CLI tool for creating an Azure Resource Group in Terraform`,
@@ -60,13 +60,4 @@ func init() {
 	rgname.PersistentFlags().StringVarP(&rg_name, "rgname", "n", "", "Resource Group Name")
 	//here we are making the flag required for the command to run successfully
 	rgname.MarkPersistentFlagRequired("rgname")
-}
-
-func main() {
-	rootCmd := &cobra.Command{Use: "terrago"}
-	rootCmd.AddCommand(rgname)
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 }
