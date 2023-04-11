@@ -1,3 +1,6 @@
+/*
+Copyright © 2023 NAME HERE <EMAIL ADDRESS>
+*/
 package cmd
 
 import (
@@ -9,8 +12,11 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "terrago",
-	Short: "a CLI tool for Terraform",
-	Long:  "A CLI tool for Terraform that allows you to create, update, and destroy Terraform configurations in a command. ",
+	Short: "a cli tool for terraform",
+	Long:  "a cli tool for terraform that allows you to manage your terraform projects from a single cli",
+	// Uncomment the following line if your bare application
+	// has an action associated with it:
+	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -23,5 +29,13 @@ func Execute() {
 }
 
 func init() {
+	// Here you will define your flags and configuration settings.
+	// Cobra supports persistent flags, which, if defined here,
+	// will be global for your application.
+
+	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.terrago.yaml)")
+
+	// Cobra also supports local flags, which will only run
+	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

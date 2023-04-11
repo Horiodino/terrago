@@ -1,4 +1,4 @@
-module github.com/Horiodino/terrago.git
+module github.com/Horiodino/terrago
 
 go 1.20
 
