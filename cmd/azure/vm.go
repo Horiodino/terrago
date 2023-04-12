@@ -53,7 +53,7 @@ func createVM(vmname string, vmSize string, location string, username string, pa
 	}
 	fmt.Printf("Created resource group %q", *group.Name)
 
-	//creating the vm
+	// Create a virtual machine client
 	vmClient := compute.NewVirtualMachinesClient(subscriptionID)
 	vmClient.Authorizer = authorizer
 	future, err := vmClient.CreateOrUpdate(
@@ -81,6 +81,23 @@ func createVM(vmname string, vmSize string, location string, username string, pa
 					},
 				},
 
+				//Disk is also important as it will define the storage of the vm
+				//here we are using the os disk to define the storage of the vm
+				OsDisk: &compute.OSDisk{
+					Name:         &osDiskName,
+					Caching:      compute.CachingTypesNone,
+					CreateOption: compute.DiskCreateOptionTypes(osDiskCreateOption),
+					// we not giving the size of the disk so it will take the default size
+					DiskSizeGB:   &osDiskSizeGB,
+					//here we are using the managed disk to define the storage of the vm
+					// like which type of storage we are using standard or premium
+					ManagedDisk: &compute.ManagedDiskParameters{
+						StorageAccountType: compute.StorageAccountTypes(storageAccountType),
+					},
+				},
+			},
+				
+
 				//os profile will have the username password and the ssh keys
 				//here linuxconfiguration is used to disable the password authentication
 				//as azure will not allow the password authentication and the ssh keys
@@ -96,7 +113,103 @@ func createVM(vmname string, vmSize string, location string, username string, pa
 							PublicKeys: &[]compute.SShPublicKey{
 								{
 									//now here we are using the public key to login to the vm
+									//path is the path where the public key will be stored
+									Path: to.StringPtr(fmt.Sprintf("/home/%s/.ssh/authorized_keys", username)),
+									//keydata is the actual public key which will be used to login to the vm
+									KeyData: to.StringPtr(PublicKey),
 						},
 			},
-			
+
+		//here we are using the network profile to define the network interface
+		//we are using the default vnet and subnet
+
+		NetworkProfile: &compute.NetworkProfile{
+
+			//defining the name of the network interface  
+
+
+			NetworkInterfaces: &[]compute.NetworkInterfaceReference{
+				//here we are using the network interface reference to define the network interface
+				{
+
+					//here we are using the network interface reference properties to define the network interface
+					ID: to.StringPtr(fmt.Sprintf("/subscriptions", subscriptionID, "/resourceGroups", rgName, "/providers/Microsoft.Network/networkInterfaces", vmname, "-nic")),
+					//now lets create the network interface
+					NetworkInterfaceReferenceProperties: &compute.NetworkInterfaceReferenceProperties{
+						//here we are using the primary to define the primary network interface
+						//it simply means that this network interface will be used to connect to the vm
+						Primary: to.BoolPtr(true),
+						//here we are using the network interface properties to define the ip configuration
+						NetworkInterfaceReferenceProperties: &compute.NetworkInterfaceReferenceProperties{
+							IPConfigurations: &[]compute.IPConfiguration{
+								{
+									//now subnet is also important as it will define the ip address
+									Subnet: &compute.APIEntityReference{
+										ID: to.StringPtr(fmt.Sprintf("/subscriptions", subscriptionID, "/resourceGroups", rgName, "/providers/Microsoft.Network/virtualNetworks", vmname, "-vnet/subnets/default")),
+									},
+
+									//now here we are using the ip configuration properties to define the public ip address
+									IPConfigurationProperties: &compute.IPConfigurationProperties{
+										//here we are using the public ip address to define the public ip address
+										PublicIPAddress: &compute.PublicIPAddress{
+											ID: to.StringPtr(fmt.Sprintf("/subscriptions", subscriptionID, "/resourceGroups", rgName, "/providers/Microsoft.Network/publicIPAddresses", vmname, "-pip")),
+											//now lets create the public ip address
+
+											//publicIPAddressPropertiesFormat is used to define the public ip address
+											//here we are using the publicIPAddressPropertiesFormat to define the public ip address
+											PublicIPAddressPropertiesFormat: &compute.PublicIPAddressPropertiesFormat{
+												PublicIPAddressVersion:   compute.IPv4,
+												PublicIPAllocationMethod: compute.Static,
+											},
+										},
+										},
+
+									//NetworkSecurity Group
+									NetworkSecurityGroup: &compute.NetworkSecurityGroup{
+										ID: to.StringPtr(fmt.Sprintf("/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/networkSecurityGroups/%s-nsg", subscriptionID, rgName, vmname)),
+										//now lets create the network security group
+										networkSecurityGroupPropertiesFormat: &compute.NetworkSecurityGroupPropertiesFormat{
+											SecurityRules: &[]compute.SecurityRule{
+												{
+													//here we are using the security rule properties to define the security rule
+													//1st rule is to allow the ssh traffic
+													SecurityRulePropertiesFormat: &compute.SecurityRulePropertiesFormat{
+													//2nd protocol is to allow the ssh traffic
+													Protocol: 			   compute.SecurityRuleProtocolTCP,
+													//port range is to allow the ssh traffic
+													DestinationPortRange: to.StringPtr(),
+													//source address prefix is to allow the ssh traffic
+													//it means that the traffic will be allowed from any ip address
+													//but we can also specify the ip address from where the traffic will be allowed
+													//here we are using the * to allow the traffic from any ip address
+													//but it is not recommended to use the * as it will allow the traffic from any ip address
+													SourceAddressPrefix:  to.StringPtr("*"),
+
+													//now here we are using the access to allow the traffic
+													//here we are using the allow to allow the traffic
+													Access: compute.SecurityRuleAccessAllow,
+													//priority is to allow the ssh traffic
+													//why we are using the priority
+													//because if we have multiple rules then the priority will decide which rule will be applied first
+
+													Priority: to.Int32Ptr(100),
+													//direction is to allow the ssh traffic
+													//here we are using the inbound to allow the traffic from outside to inside
+													Direction: compute.SecurityRuleDirectionInbound,
+												},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
+			// now we created all the things required to create the vm
+			//such as network interface, public ip address, network security group
+
+			//now lets create the vm
+		},
+	},
 }
