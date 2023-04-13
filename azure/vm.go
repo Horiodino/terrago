@@ -1,4 +1,4 @@
-package cmd
+package azure
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"github.com/Azure/azure-sdk-for-go/profiles/2017-03-09/compute/mgmt/compute"
 	"github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2019-05-01/resources"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -19,26 +18,10 @@ var (
 	password       string
 )
 
-var vmCmd = &cobra.Command{
-	Use:   "vm",
-	Short: "Manage Azure Virtual Machines",
-	Long:  `Manage Azure Virtual Machines`,
-	Run: func(cmd *cobra.Command, args []string) {
-		createVM(vmname, vmSize, location, username, password, subscriptionID, rgName)
-	},
+func main(){
+	
 }
 
-func init() {
-	vmCmd.AddCommand(vmCmd)
-	vmCmd.PersistentFlags().StringVarP(&subscriptionID, "subscriptionID", "s", "", "Azure Subscription ID")
-	vmCmd.PersistentFlags().StringVarP(&rgName, "rgName", "g", "", "Azure Resource Group Name")
-	vmCmd.PersistentFlags().StringVarP(&vmname, "vmname", "n", "", "Azure Virtual Machine Name")
-	vmCmd.PersistentFlags().StringVarP(&vmSize, "vmSize", "z", "", "Azure Virtual Machine Size")
-	vmCmd.PersistentFlags().StringVarP(&location, "location", "l", "", "Azure Location")
-	vmCmd.PersistentFlags().StringVarP(&username, "username", "u", "", "Azure Virtual Machine Username")
-	vmCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "Azure Virtual Machine Password")
-
-}
 
 func createVM(vmname string, vmSize string, location string, username string, password string, subscriptionID string, rgName string) {
 	authorizer, err := auth.NewAuthorizerFromEnvironment()
