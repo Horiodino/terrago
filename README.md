@@ -1,10 +1,5 @@
 # terrago
-A Go cli tool for terraform to create iac in one command 
-NOTE:
+A Go tool for using your cloude providers directly from your terminal
 
-```
-plese dont use the sorce-code in the repo , from now onwards we are going to use the sdk`s .
-it will be updated on weekends.
-```
 
 
