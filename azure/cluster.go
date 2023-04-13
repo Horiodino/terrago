@@ -10,7 +10,7 @@ import (
 	"github.com/Azure/go-autorest/autorest/to"
 )
 
-func CreateCluster(clustername string, newlocation string, nodecount int) {
+func CreateCluster(clustername string, newlocation string, nodecount int,StorageAccountTypeUSER string) {
 	// Create a new authorizer
 
 	if newlocation == "" {
@@ -54,7 +54,7 @@ func CreateCluster(clustername string, newlocation string, nodecount int) {
 			// here we are using the default storage account
 
 			StorageProfile: &containerservice.ManagedClusterStorageProfile{
-				StorageAccountType: containerservice.ManagedClusterStorageAccountTypes("Standard_LRS"),
+				StorageAccountType: containerservice.ManagedClusterStorageAccountTypes(StorageAccountTypeUSER),
 			},
 			},
 
