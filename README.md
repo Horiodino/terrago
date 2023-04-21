@@ -1,5 +1,5 @@
 # terrago
-A Go tool for using your cloude providers directly from your terminal
+A Go web-tool for using your cloude providers directly from your desktop
 
 
 
