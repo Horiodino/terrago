@@ -4,8 +4,9 @@ go 1.20
 
 require (
 	github.com/Azure/azure-sdk-for-go v68.0.0+incompatible // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.4.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/internal v1.2.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.5.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.3.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork/v2 v2.2.1 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources v1.1.0 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest v0.11.28 // indirect
@@ -24,6 +25,6 @@ require (
 	github.com/spf13/cobra v1.7.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/net v0.9.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
 )

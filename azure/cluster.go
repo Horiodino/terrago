@@ -232,3 +232,44 @@ func clusterdelete() {
 	//if the cluster is not deleted, we will return an error above
 }
 
+// also we need to get the kubeconfig file for the cluster
+// we will get the kubeconfig file for the cluster and we will save it in a file
+
+// getting the kubeconfig file for the cluster
+
+func getkubeconfig() {
+	// authenticating to the Azure API
+	authorizer, err := auth.NewAuthorizerFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// creating the cluster client
+	clusterClient := containerservice.NewManagedClustersClient(subscriptionID)
+	clusterClient.Authorizer = authorizer
+
+	// getting the kubeconfig file for the cluster
+	accessProfile, err := clusterClient.GetAccessProfile(context.Background(), resourceGroupName, clusterName, "clusterUser")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// saving the kubeconfig file in a file
+	err = ioutil.WriteFile("kubeconfig", *accessProfile.KubeConfig, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+
+
+
+// we will get all the cluster resources info such as the cpu usage, memory usage, disk usage,
+// network usage, pod usage, container usage, and the incoming traffic and outgoing traffic
+// fo this we will use kubeconfig file for the cluster
+
+// getting the cluster resources info
+
+func clusterresources() {
+
+}
