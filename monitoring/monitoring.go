@@ -1,4 +1,4 @@
-package main
+package monitoring
 
 //in this file we will define the monitoring part of the cluster and all its components
 // and we will give it to the webserver to display it
