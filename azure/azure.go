@@ -1,7 +1,8 @@
 package azure
 
+import "fmt"
 
-func(){
+func show() {
 	//all azure resources we have
 	fmt.Println("Azure Resources")
 	fmt.Println("-----------------------------------")
@@ -18,9 +19,5 @@ func(){
 	fmt.Println("AZURE_DISK")
 	fmt.Println("AZURE_RESOURCE_GROUP")
 	fmt.Println("-----------------------------------")
-
-
-
-
 
 }
