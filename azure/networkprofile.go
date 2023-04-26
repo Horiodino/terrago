@@ -4,6 +4,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2019-09-01/network"
 	// "github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
+	// "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwo/rk/v2"
 )
 
 // define the network profile
@@ -17,7 +18,5 @@ func networkProfile() {
 	// creating the client for network
 	netclient := network.NewNetworkProfilesClient(subscriptionID)
 	netclient.Authorizer = authorizer
-
-	// creating the network profile default
 
 }

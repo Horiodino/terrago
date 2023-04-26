@@ -1,0 +1,1 @@
+// : Kubernetes generates a lot of events, such as pod status changes and node failures. You can use tools such as Fluentd or Elasticsearch to collect and analyze Kubernetes events, which can help you identify issues and troubleshoot problems.

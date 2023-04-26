@@ -1,0 +1,1 @@
+//  Kubernetes clusters are a high-value target for attackers, so it's important to monitor the security of your cluster. You can use tools such as Falco or Sysdig Secure to monitor for suspicious activity and alert on potential security incidents.
