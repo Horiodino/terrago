@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/google/cadvisor/client/v2"
-	"github.com/google/cadvisor/info/v1"
+
+	v2 "github.com/google/cadvisor/client/v2"
+	v1 "github.com/google/cadvisor/info/v1"
 )
 
 // defining a strunct to store the container metrics and all
@@ -108,6 +109,8 @@ func getContainerMetrics() {
 	if err != nil {
 		// custom error handling
 	}
+	// fixes later on we will save the subcontainers in a slice
+	// right now we will print the subcontainers just to check if it is working or not
 
 	for _, subcontainer := range subcontainers {
 
