@@ -12,6 +12,11 @@ import (
 
 // here we will get the ednpoints to get the more info aboute the cluster and its components
 // we will use the kubernetes client to get the endpoints
+// what are the details we will get from the endpoints
+// we will get the info regarding the nodes, pods, services, deployments, etc
+// we will get the info regarding the cpu usage, memory usage, disk usage, etc
+// we will get the info regarding the billing as well
+// we will get the info regarding the network usage as well
 
 func getEndpoints() {
 
