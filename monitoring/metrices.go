@@ -260,5 +260,3 @@ func clusterInfo() ([]resources, error) {
 
 	return resourcesList, nil
 }
-
-// now we will do like peomithius now ,

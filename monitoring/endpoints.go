@@ -18,6 +18,16 @@ import (
 // we will get the info regarding the billing as well
 // we will get the info regarding the network usage as well
 
+// creating the endpoints slice
+type endpoints struct {
+	clusterName string
+	nodes       []string
+	pods        []string
+	services    []string
+	deployments []string
+	endpoints   []string
+}
+
 func getEndpoints() {
 
 	// get the endpoints of the cluster using the kubernetes client
@@ -39,7 +49,10 @@ func getEndpoints() {
 		log.Fatal(err)
 	}
 
-	// get the endpoints of the cluster
+	// get the endpoints of the cluster and store them in a slice
+	for _, endpoint := range endpoints.Items {
+		log.Println(endpoint.Name)
+	}
 
 }
 
