@@ -418,9 +418,46 @@ func namespacesInfo(r *resources, ns []namespace) ([]namespace, error) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		// now append the data into the namespace struct
 
+		// Create a new namespace struct
+		newNS := namespace{namespaceName: namespaces[i]}
+
+		// Append relevant data to the struct fields
+		for _, pod := range po.Items {
+			newNS.nspods = append(newNS.nspods, pod.Name)
+		}
+		for _, service := range svc.Items {
+			newNS.nsservices = append(newNS.nsservices, service.Name)
+		}
+		for _, ingress := range ig.Items {
+			newNS.nsingresses = append(newNS.nsingresses, ingress.Name)
+		}
+		for _, deployment := range depl.Items {
+			newNS.nsdeployments = append(newNS.nsdeployments, deployment.Name)
+		}
+		for _, statefulset := range ss.Items {
+			newNS.nsstatefulsets = append(newNS.nsstatefulsets, statefulset.Name)
+		}
+		for _, daemonset := range ds.Items {
+			newNS.nsdaemonsets = append(newNS.nsdaemonsets, daemonset.Name)
+		}
+		for _, confimap := range cm.Items {
+			newNS.nsconfimap = append(newNS.nsconfimap, confimap.Name)
+		}
+		for _, secret := range sec.Items {
+			newNS.nssecret = append(newNS.nssecret, secret.Name)
+		}
+		for _, persistentvolumeclaim := range pvc.Items {
+			newNS.nspersistentvolumeclaims = append(newNS.nspersistentvolumeclaims, persistentvolumeclaim.Name)
+		}
+		for _, persistentvolume := range pv.Items {
+			newNS.nspersistentvolumes = append(newNS.nspersistentvolumes, persistentvolume.Name)
+		}
+
+		// Append the new namespace struct to the namespace slice
+		ns = append(ns, newNS)
 	}
+	return ns, nil
 }
 
 // now we will get more info regarding the cluster and its components
