@@ -1,38 +1,21 @@
-// here we will get the ednpoints to get the more info aboute the cluster and its components
-
 package monitoring
 
 import (
 	"context"
+	"log"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"log"
 )
 
-// here we will get the ednpoints to get the more info aboute the cluster and its components
-// we will use the kubernetes client to get the endpoints
-// what are the details we will get from the endpoints
-// we will get the info regarding the nodes, pods, services, deployments, etc
-// we will get the info regarding the cpu usage, memory usage, disk usage, etc
-// we will get the info regarding the billing as well
-// we will get the info regarding the network usage as well
-
 // creating the endpoints slice
-type endpoints struct {
-	clusterName string
-	nodes       []string
-	pods        []string
-	services    []string
-	deployments []string
-	endpoints   []string
-}
+var endpointsSlice []string
 
+// getEndpoints will get the endpoints of the cluster using the kubernetes client
 func getEndpoints() {
 
-	// get the endpoints of the cluster using the kubernetes client
-
-	//create the kubernetes client
+	// create the kubernetes client
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -49,13 +32,51 @@ func getEndpoints() {
 		log.Fatal(err)
 	}
 
-	// get the endpoints of the cluster and store them in a slice
+	// append the endpoints to the endpoints slice
 	for _, endpoint := range endpoints.Items {
-		log.Println(endpoint.Name)
+		endpointsSlice = append(endpointsSlice, endpoint.Name)
 	}
 
 }
 
-func getMetrics() {
+// getHTTPRequests will get the number of HTTP requests using the endpoints
+func getHTTPRequests() int {
 
+	// create the Kubernetes client
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// use the EndpointSlice API to get the number of HTTP requests
+	endpointSlices, err := clientset.DiscoveryV1beta1().EndpointSlices("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var numHTTPRequests int
+
+	// iterate over each EndpointSlice and count the number of HTTP requests
+	for _, endpointSlice := range endpointSlices.Items {
+		for _, endpoint := range endpointSlice.Endpoints {
+			for _, subset := range endpoint.Subsets {
+				for _, address := range subset.Addresses {
+					for _, port := range subset.Ports {
+						if port.Protocol == "TCP" && port.Port == 80 {
+							numHTTPRequests += len(address.TargetRef)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return numHTTPRequests
 }
+
+// getHTTPSRequests will get the number of HTTPS requests using the endpoints

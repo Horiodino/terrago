@@ -4,13 +4,19 @@ package monitoring
 
 import (
 	"context"
-	"log"
-	"strconv"
 
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
+
+	// using mongoDB
+
+	"log"
+	"strconv"
+	"time"
 )
 
 // as we will have multiple nodes we will define the nodes as an array
@@ -259,4 +265,86 @@ func clusterInfo() ([]resources, error) {
 	})
 
 	return resourcesList, nil
+}
+
+// as we are using the kubernetes API to get the info regarding the cluster and its components
+// to use mongodb we will create a struct which will have the same fields as the struct which we created above
+// we will use this struct to insert the data into the mongodb
+type clusterInfoMongo struct {
+	clusterName            string
+	cpu                    float64
+	cores                  int64
+	nodes                  []string
+	memory                 float64
+	disk                   float64
+	pods                   []string
+	services               []string
+	ingresses              []string
+	deployments            []string
+	statefulsets           []string
+	daemonsets             []string
+	confimap               []string
+	secret                 []string
+	namespaces             []string
+	persistentvolumeclaims []string
+	persistentvolumes      []string
+}
+
+// this function will insert the data into the mongodb
+func insertDataMongo(resourcesList []resources) error {
+
+	// create a new mongo client
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create a new context
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// connect to the mongo client
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create a new database
+	database := client.Database("clusterInfo")
+
+	// create a new collection
+	collection := database.Collection("clusterInfo")
+
+	// now we will insert the data into the collection
+	for _, v := range resourcesList {
+
+		// create a new struct
+		clusterInfoMongo := clusterInfoMongo{
+			clusterName:            v.clusterName,
+			cpu:                    v.cpu,
+			cores:                  v.cores,
+			nodes:                  v.nodes,
+			memory:                 v.memory,
+			disk:                   v.disk,
+			pods:                   v.pods,
+			services:               v.services,
+			ingresses:              v.ingresses,
+			deployments:            v.deployments,
+			statefulsets:           v.statefulsets,
+			daemonsets:             v.daemonsets,
+			confimap:               v.confimap,
+			secret:                 v.secret,
+			namespaces:             v.namespaces,
+			persistentvolumeclaims: v.persistentvolumeclaims,
+			persistentvolumes:      v.persistentvolumes,
+		}
+
+		// insert the data into the collection
+		_, err := collection.InsertOne(ctx, clusterInfoMongo)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	return nil
 }

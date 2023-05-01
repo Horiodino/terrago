@@ -140,9 +140,6 @@ func getContainerMetrics() {
 		fmt.Printf("   Stats: %v\n", subcontainer.Stats[0].Cpu.Usage.PerCpu)
 		fmt.Printf("   Stats: %v\n", subcontainer.Stats[0].Cpu.Usage.PerCpu)
 		fmt.Printf("   Stats: %v\n", subcontainer.Stats[0].Cpu.Usage.PerCpu)
-
 	}
-
-	// as we defined everything now we are here going to get the .....
 
 }

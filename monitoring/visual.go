@@ -168,4 +168,49 @@ type podInfo struct {
 }
 
 func podVisuals() {
+
+	// kuebrnetes client
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// get the pods of the cluster
+	pods, err := clientset.CoreV1().Pods("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// now we will get inside the pods and we will get the info regarding the pods
+	// we will get the info regarding the pods and we will store them in a slice
+
+	// now get the info regarding the pods and store them in a slice
+	for _, pod := range pods.Items {
+
+		podname := pod.Name
+		podns := pod.Namespace
+		podlable := pod.Labels
+		podannotation := pod.Annotations
+		// podcontainer := pod.Spec.Containers
+
+		// now we will store the info regarding the pods in a slice
+		// we will store the info in the podInfo struct
+
+		// now  append the info regarding the pods in the podInfo struct
+		podInfo := podInfo{
+			podName:     podname,
+			namespace:   podns,
+			labels:      podlable,
+			annotations: podannotation,
+		}
+		// now we will append the info regarding the pods in the podInfo slice
+		podInfoSlice = append(podInfoSlice, podInfo)
+
+	}
+
 }
