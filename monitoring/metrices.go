@@ -4,6 +4,7 @@ package monitoring
 
 import (
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -348,3 +349,84 @@ func insertDataMongo(resourcesList []resources) error {
 
 	return nil
 }
+
+// before that lets get the namespace name from the resources struct
+// namepace struct
+type namespace struct {
+	namespaceName            string
+	nspods                   []string
+	nsservices               []string
+	nsingresses              []string
+	nsdeployments            []string
+	nsstatefulsets           []string
+	nsdaemonsets             []string
+	nsconfimap               []string
+	nssecret                 []string
+	nspersistentvolumeclaims []string
+	nspersistentvolumes      []string
+}
+
+// now we will get the info regarding the namespces
+func namespacesInfo(r *resources, ns []namespace) ([]namespace, error) {
+	namespaces := r.namespaces
+	for i := 0; i < len(namespaces); i++ {
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
+		clientset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			log.Fatal(err)
+		}
+		po, err := clientset.CoreV1().Pods(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		svc, err := clientset.CoreV1().Services(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		ig, err := clientset.NetworkingV1().Ingresses(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		depl, err := clientset.AppsV1().Deployments(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		ss, err := clientset.AppsV1().StatefulSets(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		ds, err := clientset.AppsV1().DaemonSets(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		cm, err := clientset.CoreV1().ConfigMaps(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		sec, err := clientset.CoreV1().Secrets(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		pvc, err := clientset.CoreV1().PersistentVolumeClaims(namespaces[i]).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		pv, err := clientset.CoreV1().PersistentVolumes().List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		// now append the data into the namespace struct
+
+	}
+}
+
+// now we will get more info regarding the cluster and its components
+// we will get the info regarding the pods, services, deployments, statefulsets, daemonsets, configmaps, secrets, namespaces, persistentvolumeclaims, persistentvolumes
+// we will use the kubernetes API to get the info regarding the cluster and its components
+// we will create a struct which will have the same fields as the struct which we created above
+// we will use this struct to insert the data into the mongodb
+
+// lets get all the info regarding the pods

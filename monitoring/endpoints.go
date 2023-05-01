@@ -78,5 +78,3 @@ func getHTTPRequests() int {
 
 	return numHTTPRequests
 }
-
-// getHTTPSRequests will get the number of HTTPS requests using the endpoints
