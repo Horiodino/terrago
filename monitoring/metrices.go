@@ -4,9 +4,6 @@ package monitoring
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -35,6 +32,40 @@ type monitoring struct {
 	billing     float64
 }
 
+// this monotoring struct will get the info for alerting rules
+func (m *monitoring) getinfo() {
+	// we will get the entire cpu usage for the cluster
+	// we will get the entire memory usage for the cluster
+	// we will get the entire disk usage for the cluster
+	// we will get the entire billing for the cluster
+
+	// cpu usage for the cluster
+	// kubernetes client
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+	metricsClient, err := versioned.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, node := range nodes.Items {
+		// get the nuber of nodes running
+		m.nodes = append(m.nodes, node.Name)
+	}
+}
+
+// dont be confused ,   this struct is for the nodes info not for the entire cluster
 type NodeInfo struct {
 	Name   []string
 	Memory []float64
@@ -72,7 +103,6 @@ func cpu() ([]NodeInfo, error) {
 	}
 
 	// get the metrics for the nodes
-
 	// get the list of nodes
 	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -122,7 +152,7 @@ func cpu() ([]NodeInfo, error) {
 
 }
 
-// ressources struct
+// ressources struct for entire cluster
 type resources struct {
 	clusterName            string
 	cpu                    float64
@@ -273,6 +303,7 @@ func clusterInfo() ([]resources, error) {
 // as we are using the kubernetes API to get the info regarding the cluster and its components
 // to use mongodb we will create a struct which will have the same fields as the struct which we created above
 // we will use this struct to insert the data into the mongodb
+// not surly if this is the best way  but working to saving in json format
 type clusterInfoMongo struct {
 	clusterName            string
 	cpu                    float64
@@ -461,11 +492,3 @@ func namespacesInfo(r *resources, ns []namespace) ([]namespace, error) {
 	}
 	return ns, nil
 }
-
-// now we will get more info regarding the cluster and its components
-// we will get the info regarding the pods, services, deployments, statefulsets, daemonsets, configmaps, secrets, namespaces, persistentvolumeclaims, persistentvolumes
-// we will use the kubernetes API to get the info regarding the cluster and its components
-// we will create a struct which will have the same fields as the struct which we created above
-// we will use this struct to insert the data into the mongodb
-
-// lets get all the info regarding the pods

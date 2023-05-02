@@ -9,11 +9,8 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-// creating the endpoints slice
-var endpointsSlice []string
-
 // getEndpoints will get the endpoints of the cluster using the kubernetes client
-func getEndpoints() {
+func getEndpoints() []string {
 
 	// create the kubernetes client
 	config, err := rest.InClusterConfig()
@@ -32,11 +29,15 @@ func getEndpoints() {
 		log.Fatal(err)
 	}
 
+	// creating the endpoints slice
+	var endpointsSlice []string
+
 	// append the endpoints to the endpoints slice
 	for _, endpoint := range endpoints.Items {
 		endpointsSlice = append(endpointsSlice, endpoint.Name)
 	}
 
+	return endpointsSlice
 }
 
 // getHTTPRequests will get the number of HTTP requests using the endpoints
@@ -61,6 +62,7 @@ func getHTTPRequests() int {
 
 	var numHTTPRequests int
 
+	// fixing it here
 	// iterate over each EndpointSlice and count the number of HTTP requests
 	for _, endpointSlice := range endpointSlices.Items {
 		for _, endpoint := range endpointSlice.Endpoints {
