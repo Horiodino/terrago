@@ -212,5 +212,4 @@ func podVisuals() {
 		podInfoSlice = append(podInfoSlice, podInfo)
 
 	}
-
 }
