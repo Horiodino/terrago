@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-----------------------------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------------
 // as we will have multiple nodes we will define the nodes as an array
 // also we will define the cpu usage for the nodes as well memory usage for the nodes
 type monitoring struct {
@@ -96,10 +96,12 @@ func (m *monitoring) getinfo() {
 	m.totaldisk = float64(disk)
 
 }
+
 // now we will save the info that we saved in the struct to the database
 func (m *monitoring) savedata() {
 }
-----------------------------------------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 // dont be confused ,   this struct is for the nodes info not for the entire cluster
 type NodeInfo struct {
@@ -187,7 +189,8 @@ func cpu() ([]NodeInfo, error) {
 	return nodeInfoList, nil
 
 }
-----------------------------------------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 // ressources struct for entire cluster
 type resources struct {
@@ -419,7 +422,8 @@ func insertDataMongo(resourcesList []resources) error {
 
 	return nil
 }
-----------------------------------------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------------------------------------
 
 // before that lets get the namespace name from the resources struct
 // namepace struct
@@ -530,4 +534,5 @@ func namespacesInfo(r *resources, ns []namespace) ([]namespace, error) {
 	}
 	return ns, nil
 }
-----------------------------------------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------------------------------------
