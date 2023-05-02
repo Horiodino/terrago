@@ -14,15 +14,11 @@ package alerting
 
 // let's define the alerting rules for the monitoring
 
-// we will define the alerting rules for the monitoring which will include the following
-// we will define the alerting rules for the monitoring for the cpu usage, memory usage, disk usage, etc
-// we will define the alerting rules for the monitoring for the billing
-
 // first of all we will get the logs from the monitoring
 // we will get the logs from the monitoring for the cpu usage, memory usage, disk usage, etc
-// and then we will define the alerting rules for the monitoring for the cpu usage, memory usage, disk usage, etc
-
-// now we will define the alerting rules for the monitoring for the cpu usage, memory usage, disk usage, etc
 func cpualert() {
-	// creating a Kubernetes client
+	// we will use the data that is is saved in the database or just use the json file directly
+	// its pending now to get the data from the database but we will use the json file directly
+	// pending yet
+
 }
