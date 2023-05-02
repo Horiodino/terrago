@@ -143,23 +143,6 @@ type resources struct {
 	persistentvolumeclaims []string
 }
 
-func jsonCPU() {
-	// Read the JSON data from file.
-	jsonData, err := ioutil.ReadFile("main.json")
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return
-	}
-
-	// Decode the JSON data into a resources struct.
-	var res resources
-	err = json.Unmarshal(jsonData, &res)
-	if err != nil {
-		fmt.Println("Error decoding JSON:", err)
-		return
-	}
-}
-
 // now we will decalre an array of the struct which we created above
 var resourcesList []resources
 
