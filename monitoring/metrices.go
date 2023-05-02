@@ -19,14 +19,16 @@ import (
 	"time"
 )
 
+----------------------------------------------------------------------------------------------------------------------------
 // as we will have multiple nodes we will define the nodes as an array
 // also we will define the cpu usage for the nodes as well memory usage for the nodes
 type monitoring struct {
 	clusterName string
 	cpu         float64
 	cores       int64
-	nodes       []string
-	memory      float64
+	nodes       int64
+	totalmemory float64
+	usedmemory  float64
 	disk        float64
 	totaldisk   float64
 	billing     float64
@@ -34,10 +36,6 @@ type monitoring struct {
 
 // this monotoring struct will get the info for alerting rules
 func (m *monitoring) getinfo() {
-	// we will get the entire cpu usage for the cluster
-	// we will get the entire memory usage for the cluster
-	// we will get the entire disk usage for the cluster
-	// we will get the entire billing for the cluster
 
 	// cpu usage for the cluster
 	// kubernetes client
@@ -49,21 +47,59 @@ func (m *monitoring) getinfo() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// get the metrics for the cluster
 	metricsClient, err := versioned.NewForConfig(config)
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	metrics, err := metricsClient.MetricsV1beta1().NodeMetricses().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var cpuUsage int64
+	for _, node := range metrics.Items {
+		cpuUsage += node.Usage.Cpu().MilliValue()
+	}
 	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	var cpuCores int64
 	for _, node := range nodes.Items {
-		// get the nuber of nodes running
-		m.nodes = append(m.nodes, node.Name)
+		cpuCores += node.Status.Capacity.Cpu().Value()
 	}
+	var memoryUsage int64
+	for _, node := range metrics.Items {
+		memoryUsage += node.Usage.Memory().Value()
+	}
+	var memory int64
+	for _, node := range nodes.Items {
+		memory += node.Status.Capacity.Memory().Value()
+	}
+	var diskUsage int64
+	for _, node := range metrics.Items {
+		diskUsage += node.Usage.StorageEphemeral().Value()
+	}
+	var disk int64
+	for _, node := range nodes.Items {
+		disk += node.Status.Capacity.StorageEphemeral().Value()
+	}
+
+	// now we have all the info regarding the cpu usage, memory usage, disk usage, etc of the entire cluster
+	// now append the info to the struct
+	m.cpu = float64(cpuUsage)
+	m.cores = cpuCores
+	m.nodes = int64(len(nodes.Items))
+	m.totalmemory = float64(memory)
+	m.usedmemory = float64(memoryUsage)
+	m.disk = float64(diskUsage)
+	m.totaldisk = float64(disk)
+
 }
+// now we will save the info that we saved in the struct to the database
+func (m *monitoring) savedata() {
+}
+----------------------------------------------------------------------------------------------------------------------------
 
 // dont be confused ,   this struct is for the nodes info not for the entire cluster
 type NodeInfo struct {
@@ -151,6 +187,7 @@ func cpu() ([]NodeInfo, error) {
 	return nodeInfoList, nil
 
 }
+----------------------------------------------------------------------------------------------------------------------------
 
 // ressources struct for entire cluster
 type resources struct {
@@ -382,6 +419,7 @@ func insertDataMongo(resourcesList []resources) error {
 
 	return nil
 }
+----------------------------------------------------------------------------------------------------------------------------
 
 // before that lets get the namespace name from the resources struct
 // namepace struct
@@ -492,3 +530,4 @@ func namespacesInfo(r *resources, ns []namespace) ([]namespace, error) {
 	}
 	return ns, nil
 }
+----------------------------------------------------------------------------------------------------------------------------
