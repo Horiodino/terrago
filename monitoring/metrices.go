@@ -99,6 +99,34 @@ func (m *monitoring) getinfo() {
 
 // now we will save the info that we saved in the struct to the database
 func (m *monitoring) savedata() {
+	// first of all we will connect to the database
+	// we will use mongoDB for this
+	// create the client
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create the context
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// connect to the database
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// get the database
+	database := client.Database("monitoring")
+
+	// get the collection
+	collection := database.Collection("cluster")
+
+	// now we will insert the data to the database
+	// we will insert the data as a document
+	// create the document
+	// we will use the struct that we created above
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------

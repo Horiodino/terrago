@@ -105,6 +105,7 @@ type serviceInfo struct {
 	namespace   string
 	labels      map[string]string
 	annotations map[string]string
+	targetport  float32
 }
 
 func serviceVisuals() {
@@ -138,6 +139,7 @@ func serviceVisuals() {
 		servicens := service.Namespace
 		servicelable := service.Labels
 		serviceannotation := service.Annotations
+		serviceport := service.Spec.Ports
 
 		// now we will store the info regarding the services in a slice
 		// we will store the info in the serviceInfo struct
@@ -148,6 +150,7 @@ func serviceVisuals() {
 			namespace:   servicens,
 			labels:      servicelable,
 			annotations: serviceannotation,
+			targetport:  serviceport[0].TargetPort.Float32(),
 		}
 
 		// now we will append the info regarding the services in the serviceInfo slice
@@ -210,6 +213,5 @@ func podVisuals() {
 		}
 		// now we will append the info regarding the pods in the podInfo slice
 		podInfoSlice = append(podInfoSlice, podInfo)
-
 	}
 }

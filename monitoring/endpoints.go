@@ -61,21 +61,9 @@ func getHTTPRequests() int {
 	}
 
 	var numHTTPRequests int
-
-	// fixing it here
-	// iterate over each EndpointSlice and count the number of HTTP requests
+	// get the nunber of HTTP requests
 	for _, endpointSlice := range endpointSlices.Items {
-		for _, endpoint := range endpointSlice.Endpoints {
-			for _, subset := range endpoint.Subsets {
-				for _, address := range subset.Addresses {
-					for _, port := range subset.Ports {
-						if port.Protocol == "TCP" && port.Port == 80 {
-							numHTTPRequests += len(address.TargetRef)
-						}
-					}
-				}
-			}
-		}
+		numHTTPRequests += len(endpointSlice.Ports)
 	}
 
 	return numHTTPRequests
