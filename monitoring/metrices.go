@@ -111,22 +111,62 @@ func (m *monitoring) savedata() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// connect to the database
+	// create the database if it does not exist
 	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// get the database
+	// create the database
 	database := client.Database("monitoring")
 
-	// get the collection
+	// create the collection
 	collection := database.Collection("cluster")
 
 	// now we will insert the data to the database
-	// we will insert the data as a document
 	// create the document
 	// we will use the struct that we created above
+
+	document := monitoring{
+		clusterName: m.clusterName,
+		cpu:         m.cpu,
+		cores:       m.cores,
+		nodes:       m.nodes,
+		totalmemory: m.totalmemory,
+		usedmemory:  m.usedmemory,
+		disk:        m.disk,
+		totaldisk:   m.totaldisk,
+		billing:     m.billing,
+	}
+
+	// insert the document to the database
+	_, err = collection.InsertOne(ctx, document)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// now we will close the connection
+	err = client.Disconnect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// there is one more catch here as we are building the monitoring system for the entire cluster
+// we also need that it will show the info in a periodic manner
+// so we will use the time package for this that will run the function in a periodic manner
+// and save the data to the database
+
+func (m *monitoring) periodic() {
+	ticker := time.NewTicker(1 * time.Minute)
+
+	// run the function in a periodic manner
+	for range ticker.C {
+		// get the info
+		m.getinfo()
+		// save the info to the database
+		m.savedata()
+	}
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------
