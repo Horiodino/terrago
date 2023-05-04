@@ -22,3 +22,27 @@ func cpualert() {
 	// pending yet
 
 }
+
+func memoryalert() {
+
+}
+
+func diskalert() {
+
+}
+
+func networkalert() {
+
+}
+
+func latencyalert() {
+
+}
+
+func errorsalert() {
+
+}
+
+func requestsalert() {
+
+}

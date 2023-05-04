@@ -68,3 +68,7 @@ func getHTTPRequests() int {
 
 	return numHTTPRequests
 }
+
+// Application specific requests
+// here we are going to get the application specific requests from the endpoints
+// so we can monitor the application specific requests

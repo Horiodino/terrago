@@ -4,9 +4,21 @@
 
 package Networkmonitoring
 
-// import the sysdig  rest api
+// how we can get the total incoming traffic
+// simply get the total number of bytes received on all interfaces by the pod
 
 func incomingtraffic() {
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+
+	// get the pods
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	// suing network interface to get the incoming traffic
 
 }
 
