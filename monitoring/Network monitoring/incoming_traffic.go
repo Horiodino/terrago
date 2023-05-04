@@ -4,35 +4,35 @@
 
 package Networkmonitoring
 
-import (
-	"log"
-
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-)
+// import the sysdig  rest api
 
 func incomingtraffic() {
-	// getting the incoming traffic using the kubernetes client
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 }
 
-// getting the outgoing traffic
+func outgoingtraffic() {
 
-// getting the network traffic
+}
 
-// getting the network latency
+func networktraffic() {
 
-// getting the network errors
+}
 
-// getting the network requests
+func networklatency() {
+
+}
+
+func networkerrors() {
+
+}
+
+func networkrequests() {
+
+}
+
+func exposedports() {
+
+}
 
 // getting the network throughput
 
@@ -41,8 +41,6 @@ func incomingtraffic() {
 // getting the network connections
 
 // getting the network connections
-
-// getting the exposed ports
 
 // getting the exposed services
 

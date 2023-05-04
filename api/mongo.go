@@ -44,7 +44,20 @@ func SetDatabase(username, password string) {
 	db.Password = password
 }
 
-// to save the datda in the mongodb we need to use json format and we also need to
-// define the struct for the data which we are going to save in the mongodb
+// logging in to the database
+// here we are going to create a function to login to the database
 
-// that will be done in metrics.go file
+func Login(username, password string) bool {
+	// now authenticate the user
+	if username == db.Username && password == db.Password {
+		return true
+	}
+	return false
+}
+
+// now we need to create a function to get the database
+// so we can access the database
+
+func GetDatabase() Database {
+
+}
