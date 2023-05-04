@@ -612,7 +612,6 @@ func namespacesInfo(r *resources, ns []namespace) ([]namespace, error) {
 // now we will save the ns slice to the database
 func saveNamespacesInfo(ns []namespace) error {
 
-	// connect to the database
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal(err)
@@ -623,8 +622,16 @@ func saveNamespacesInfo(ns []namespace) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	collection := client.Database("kubernetes").Collection("namespaces")
+	// now we will insert the data to the database
+	for i := 0; i < len(ns); i++ {
+		_, err := collection.InsertOne(context.Background(), ns[i])
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
-	// get the database and the collection
+	return nil
 
 }
 
