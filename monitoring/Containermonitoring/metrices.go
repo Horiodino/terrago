@@ -3,6 +3,7 @@ package Containermonitoring
 import (
 	"context"
 	"fmt"
+	"internal/cpu"
 	"log"
 	"time"
 
@@ -22,8 +23,8 @@ type containerMetrics struct {
 	nsname                []string
 	node                  []string
 	cpuUsage              []float64
-	memoryUsage           []int
-	diskIo                []int
+	memoryUsage           []float64
+	diskIo                []float64
 	networkTx             []int
 	networkRx             []int
 	containerID           []string
@@ -58,25 +59,27 @@ func containermatricesinfo() {
 		// this for loop will iterate over all the containers in the pod
 		for _, container := range pod.Spec.Containers {
 			containerMetrics := containerMetrics{
-				cname:                 []string{container.Name},
-				podName:               []string{pod.Name},
-				nsname:                []string{pod.Namespace},
-				node:                  []string{pod.Spec.NodeName},
-				cpuUsage:              []float64{0},
-				memoryUsage:           []int{0},
-				diskIo:                []int{0},
-				networkTx:             []int{0},
-				networkRx:             []int{0},
-				containerID:           []string{container.ContainerID},
+				cname:    []string{container.Name},
+				podName:  []string{pod.Name},
+				nsname:   []string{pod.Namespace},
+				node:     []string{pod.Spec.NodeName},
+				cpuUsage: []float64{cpu.GetCpuUsage(container.Name, pod.Name, pod.Namespace)},
+				// memoryUsage:           []float64{cpu.GetMemoryUses(container.Name, pod.Name, pod.Namespace)},
+				// diskIo:                []float64{cpu.GetDiskIo(container.Name, pod.Name, pod.Namespace)},
+				networkTx: []int{0},
+				networkRx: []int{0},
+				// containerID:           []string{container.ContainerID},
 				containerImage:        []string{container.Image},
 				containerStatus:       []string{string(pod.Status.Phase)},
 				containerCreationTime: []time.Time{pod.CreationTimestamp.Time},
 				containerStartTime:    []time.Time{pod.Status.StartTime.Time},
-				containerLabels:       []string{pod.Labels[i]},
+				// containerLabels:       []string{pod.Labels.String()},
+			}
+		}
 	}
 }
 
-func GetCpuUsage(containerName, podName, namespace string) (float64, error) {
+func GetCpuUsage(containerName string, podName string, namespace string) (float64, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get cluster config: %v", err)
@@ -87,8 +90,6 @@ func GetCpuUsage(containerName, podName, namespace string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to create Kubernetes API clientset: %v", err)
 	}
-
-	// create the Kubernetes Metrics API clientset
 	metricsClientset, err := versioned.NewForConfig(config)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create Kubernetes Metrics API clientset: %v", err)
@@ -99,11 +100,8 @@ func GetCpuUsage(containerName, podName, namespace string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to get pod: %v", err)
 	}
-
-	// get the start time of the pod
 	startTime := pod.GetCreationTimestamp().Time
 
-	// get the container metrics for the pod
 	containerMetrics, err := metricsClientset.MetricsV1beta1().PodMetricses(namespace).Get(context.Background(), podName, v1.GetOptions{})
 	if err != nil {
 		return 0, fmt.Errorf("failed to get container metrics: %v", err)
