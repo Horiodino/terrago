@@ -1,5 +1,4 @@
-# terrago
-A Go web-tool for using your cloude providers directly from your desktop
+tool for getting cluster metrices and monitoring
 
 
 
