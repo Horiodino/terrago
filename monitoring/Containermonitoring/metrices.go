@@ -97,15 +97,35 @@ func getContainerNames() {
 // we will use the struct to save the data in the database
 
 func savecontainerData() {
-	// now we will save the data in the database
-	// mongodb client
+	// Create a new MongoDB client
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	// creating a context also craete db if not exist
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+	// Connect to the MongoDB server
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Get a handle to the ContainerMonitoring database and ContainerData collection
+	collection := client.Database("ContainerMonitoring").Collection("ContainerData")
+
+	// Insert the containerinfo data into the MongoDB collection
+	var documents []interface{}
+	for _, container := range containerinfo {
+		documents = append(documents, container)
+	}
+	_, err = collection.InsertMany(ctx, documents)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Close the MongoDB client connection
+	err = client.Disconnect(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
