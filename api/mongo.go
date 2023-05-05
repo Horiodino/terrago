@@ -1,6 +1,7 @@
 package api
 
 // here going to define the mongodb and all the data going to be saved here
+// amkesure you have installed the mongodb in your system
 
 import ()
 

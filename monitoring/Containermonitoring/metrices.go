@@ -2,68 +2,41 @@ package Containermonitoring
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
+	"k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 // defining a strunct to store the container metrics and all
 type containerMetrics struct {
 	// conatainer name of type var containerNames
-	cname       []string
-	podName     []string
-	nsname      []string
-	node        []string
-	cpuUsage    []int
-	memoryUsage []int
-	diskIo      []int
-	networkTx   []int
-	networkRx   []int
+	cname                 []string
+	podName               []string
+	nsname                []string
+	node                  []string
+	cpuUsage              []float64
+	memoryUsage           []int
+	diskIo                []int
+	networkTx             []int
+	networkRx             []int
+	containerID           []string
+	containerImage        []string
+	containerStatus       []string
+	containerCreationTime []time.Time
+	containerStartTime    []time.Time
+	containerLabels       []string
 }
 
-// getting all the container names
-// and storing them in a slice
-// slice declaration
-// var containerNames []string
-// var containerN string
+var AllContainer int32
 
-//here are the thing that we need to do
-// Container name
-// CPU usage
-// Memory usage
-// Filesystem usage
-// Network usage
-// Container status (e.g., running, exited, etc.)
-// Container ID
-// Container image
-// Container creation and start time
-// Container labels
-// Container environment variables
-// Container command and arguments
-
-var AllContainerMetrics int32
-
-func getContaienMetrices() {
-
-	// first of all we will egt the container names
-
-}
-
-type containerNames struct {
-	containerName string
-	podName       string
-	nsName        string
-	nodeName      string
-}
-
-var containerinfo []containerNames
-
-func getContainerNames() {
+func containermatricesinfo() {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -80,53 +53,77 @@ func getContainerNames() {
 	if err != nil {
 		panic(err)
 	}
+	//this for loop will iterate over all the pods
 	for _, pod := range pods.Items {
+		// this for loop will iterate over all the containers in the pod
 		for _, container := range pod.Spec.Containers {
-			// now we will get the container name and store it in a slice of struct
-			containerinfo = append(containerinfo, containerNames{
-				containerName: container.Name,
-				podName:       pod.Name,
-				nsName:        pod.Namespace,
-				nodeName:      pod.Spec.NodeName,
-			})
-		}
+			containerMetrics := containerMetrics{
+				cname:                 []string{container.Name},
+				podName:               []string{pod.Name},
+				nsname:                []string{pod.Namespace},
+				node:                  []string{pod.Spec.NodeName},
+				cpuUsage:              []float64{0},
+				memoryUsage:           []int{0},
+				diskIo:                []int{0},
+				networkTx:             []int{0},
+				networkRx:             []int{0},
+				containerID:           []string{container.ContainerID},
+				containerImage:        []string{container.Image},
+				containerStatus:       []string{string(pod.Status.Phase)},
+				containerCreationTime: []time.Time{pod.CreationTimestamp.Time},
+				containerStartTime:    []time.Time{pod.Status.StartTime.Time},
+				containerLabels:       []string{pod.Labels[i]},
 	}
 }
 
-// now save the reterived data in a struct and also save in the database
-// we will use the struct to save the data in the database
-
-func savecontainerData() {
-	// Create a new MongoDB client
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+func GetCpuUsage(containerName, podName, namespace string) (float64, error) {
+	config, err := rest.InClusterConfig()
 	if err != nil {
-		log.Fatal(err)
+		return 0, fmt.Errorf("failed to get cluster config: %v", err)
 	}
 
-	// Connect to the MongoDB server
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	err = client.Connect(ctx)
+	// create the Kubernetes API clientset
+	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Fatal(err)
+		return 0, fmt.Errorf("failed to create Kubernetes API clientset: %v", err)
 	}
 
-	// Get a handle to the ContainerMonitoring database and ContainerData collection
-	collection := client.Database("ContainerMonitoring").Collection("ContainerData")
-
-	// Insert the containerinfo data into the MongoDB collection
-	var documents []interface{}
-	for _, container := range containerinfo {
-		documents = append(documents, container)
-	}
-	_, err = collection.InsertMany(ctx, documents)
+	// create the Kubernetes Metrics API clientset
+	metricsClientset, err := versioned.NewForConfig(config)
 	if err != nil {
-		log.Fatal(err)
+		return 0, fmt.Errorf("failed to create Kubernetes Metrics API clientset: %v", err)
 	}
 
-	// Close the MongoDB client connection
-	err = client.Disconnect(ctx)
+	// get the pod by name and namespace
+	pod, err := clientset.CoreV1().Pods(namespace).Get(context.Background(), podName, v1.GetOptions{})
 	if err != nil {
-		log.Fatal(err)
+		return 0, fmt.Errorf("failed to get pod: %v", err)
 	}
+
+	// get the start time of the pod
+	startTime := pod.GetCreationTimestamp().Time
+
+	// get the container metrics for the pod
+	containerMetrics, err := metricsClientset.MetricsV1beta1().PodMetricses(namespace).Get(context.Background(), podName, v1.GetOptions{})
+	if err != nil {
+		return 0, fmt.Errorf("failed to get container metrics: %v", err)
+	}
+
+	// find the container by name
+	//  this *v1beta1.ContainerMetrics is a pointer to the container metrics
+	// provided by the Kubernetes Metrics API
+	var container *v1beta1.ContainerMetrics
+	for _, c := range containerMetrics.Containers {
+		if c.Name == containerName {
+			container = &c
+			break
+		}
+	}
+	if container == nil {
+		return 0, fmt.Errorf("container not found: %s", containerName)
+	}
+	cpuUsage := container.Usage.Cpu().MilliValue()
+	elapsedTime := time.Since(startTime)
+	cpuUsagePercent := float64(cpuUsage) / float64(elapsedTime.Nanoseconds()) * 100
+	return cpuUsagePercent, nil
 }
