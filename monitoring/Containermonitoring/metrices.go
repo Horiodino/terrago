@@ -1,16 +1,11 @@
 package Containermonitoring
 
-import (
-	"fmt"
-
-	"github.com/google/cadvisor/client"
-	v1 "github.com/google/cadvisor/info/v1"
-	"golang.org/x/net/context"
-)
+import "k8s.io/client-go/kubernetes"
 
 // defining a strunct to store the container metrics and all
 type containerMetrics struct {
 	// conatainer name of type var containerNames
+	cname       []string
 	cpuUsage    []int
 	memoryUsage []int
 	diskIo      []int
@@ -21,27 +16,33 @@ type containerMetrics struct {
 // getting all the container names
 // and storing them in a slice
 // slice declaration
-var containerNames []string
-var containerN string
+// var containerNames []string
+// var containerN string
 
-func getContainerNames() {
-	client, err := client.NewClient("http://localhost:8080")
+//here are the thing that we need to do
+// Container name
+// CPU usage
+// Memory usage
+// Filesystem usage
+// Network usage
+// Container status (e.g., running, exited, etc.)
+// Container ID
+// Container image
+// Container creation and start time
+// Container labels
+// Container environment variables
+// Container command and arguments
+
+func getContaienMetrices() {
+	// we will sue kubelet api to get the container metrics as the kubelet api is the best way to get the container metrics
+
+	//kuebrnetes api to get the container metrics
+	// craete the kuerbetes client
+	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		fmt.Println("Error creating cAdvisor client:", err)
-		return
+		panic(err)
 	}
 
-	containerName := containerN // Replace with the name of the container you want to get stats for
-	query := v1.ContainerInfoRequest{NumStats: 1}
-	info, err := client.ContainerInfo(context.Background(), containerName, &query) // <--- getting error here
-	if err != nil {
-		fmt.Println("Error getting container info:", err)
-		return
-	}
+	// now get the container names using the kubernetes api
 
-	fmt.Println("Container name:", info.ContainerReference.Name)
-	for _, stat := range info.Stats {
-		fmt.Println("CPU usage:", stat.Cpu.Usage.Total)
-		fmt.Println("Memory usage:", stat.Memory.Usage)
-	}
 }

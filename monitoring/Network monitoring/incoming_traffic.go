@@ -4,6 +4,12 @@
 
 package Networkmonitoring
 
+import (
+	"context"
+
+	"k8s.io/client-go/kubernetes"
+)
+
 // how we can get the total incoming traffic
 // simply get the total number of bytes received on all interfaces by the pod
 
@@ -18,7 +24,7 @@ func incomingtraffic() {
 	if err != nil {
 		panic(err)
 	}
-	// suing network interface to get the incoming traffic
+	// using network interface to get the incoming traffic
 
 }
 
