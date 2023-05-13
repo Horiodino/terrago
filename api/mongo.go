@@ -61,4 +61,5 @@ func Login(username, password string) bool {
 
 func GetDatabase() Database {
 
+	return db
 }

@@ -10,7 +10,7 @@ import (
 )
 
 // getEndpoints will get the endpoints of the cluster using the kubernetes client
-func getEndpoints() []string {
+func getEndpoints() ([]string, int) {
 
 	// create the kubernetes client
 	config, err := rest.InClusterConfig()
@@ -37,7 +37,10 @@ func getEndpoints() []string {
 		endpointsSlice = append(endpointsSlice, endpoint.Name)
 	}
 
-	return endpointsSlice
+	totalnumofendpoints := len(endpointsSlice)
+
+	// print while returning the endpoints slice
+	return endpointsSlice, totalnumofendpoints
 }
 
 // getHTTPRequests will get the number of HTTP requests using the endpoints
