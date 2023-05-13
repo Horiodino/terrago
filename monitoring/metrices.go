@@ -5,6 +5,7 @@ package monitoring
 import (
 	"context"
 
+	// Kubernetes API client libraries and packages
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,8 +35,9 @@ type monitoring struct {
 	billing     float64
 }
 
-// this monotoring struct will get the info for alerting rules
-func (m *monitoring) getinfo() {
+var m *monitoring
+
+func getinfo() {
 
 	// cpu usage for the cluster
 	// kubernetes client
@@ -98,7 +100,8 @@ func (m *monitoring) getinfo() {
 }
 
 // now we will save the info that we saved in the struct to the database
-func (m *monitoring) savedata() {
+// HOW TO CALL THIS FUNCTION ?
+func savedata() {
 	// first of all we will connect to the database
 	// we will use mongoDB for this
 	// create the client
@@ -157,15 +160,15 @@ func (m *monitoring) savedata() {
 // so we will use the time package for this that will run the function in a periodic manner
 // and save the data to the database
 
-func (m *monitoring) periodic() {
+func periodic() {
 	ticker := time.NewTicker(1 * time.Minute)
 
 	// run the function in a periodic manner
 	for range ticker.C {
 		// get the info
-		m.getinfo()
+		getinfo()
 		// save the info to the database
-		m.savedata()
+		savedata()
 	}
 }
 
@@ -433,7 +436,7 @@ type clusterInfoMongo struct {
 }
 
 // this function will insert the data into the mongodb
-func insertDataMongo(resourcesList []resources) error {
+func insertDataMongo() error {
 
 	// create a new mongo client
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
@@ -515,8 +518,10 @@ type namespace struct {
 	nspersistentvolumes      []string
 }
 
+var r *resources
+
 // now we will get the info regarding the namespces
-func namespacesInfo(r *resources, ns []namespace) ([]namespace, error) {
+func namespacesInfo() ([]namespace, error) {
 	namespaces := r.namespaces
 	for i := 0; i < len(namespaces); i++ {
 		config, err := rest.InClusterConfig()
@@ -610,7 +615,7 @@ func namespacesInfo(r *resources, ns []namespace) ([]namespace, error) {
 }
 
 // now we will save the ns slice to the database
-func saveNamespacesInfo(ns []namespace) error {
+func saveNamespacesInfo() error {
 
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
@@ -636,3 +641,15 @@ func saveNamespacesInfo(ns []namespace) error {
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------
+func run() error {
+	// runnning all the functions
+	periodic() // save data and getingo fun every 5 seconds
+	cpu()
+	clusterInfo()
+	insertDataMongo()
+	namespacesInfo()
+	saveNamespacesInfo()
+
+	return nil
+
+}
