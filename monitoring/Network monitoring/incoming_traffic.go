@@ -14,6 +14,37 @@ import (
 // how we can get the total incoming traffic
 // simply get the total number of bytes received on all interfaces by the pod
 
+// for ipconfig
+type Interface struct {
+	Name       string `json:"name"`
+	Flags      string `json:"flags"`
+	MTU        int    `json:"mtu"`
+	Inet       string `json:"inet,omitempty"`
+	Netmask    string `json:"netmask,omitempty"`
+	Inet6      string `json:"inet6,omitempty"`
+	Prefixlen  int    `json:"prefixlen,omitempty"`
+	Scopeid    int    `json:"scopeid,omitempty"`
+	Ether      string `json:"ether,omitempty"`
+	Txqueuelen int    `json:"txqueuelen,omitempty"`
+	RX         struct {
+		Packets int `json:"packets"`
+		Bytes   int `json:"bytes"`
+		Errors  int `json:"errors"`
+		Dropped int `json:"dropped"`
+		Overrun int `json:"overrun"`
+		Frame   int `json:"frame"`
+	} `json:"rx,omitempty"`
+	TX struct {
+		Packets  int `json:"packets"`
+		Bytes    int `json:"bytes"`
+		Errors   int `json:"errors"`
+		Dropped  int `json:"dropped"`
+		Overruns int `json:"overruns"`
+		Carrier  int `json:"carrier"`
+		Colls    int `json:"collisions"`
+	} `json:"tx,omitempty"`
+}
+
 func totalincomingtraffic() {
 	/*
 
@@ -42,10 +73,12 @@ func totalincomingtraffic() {
 			// getting the list of interfaces in the container
 			// note this is only for a single container
 			interfacelist := getInterfaces(pod.Name, pod.Namespace, container.Name)
-			fmt.Println(interfacelist) // this will print the list of interfaces and their names
+			fmt.Println(interfacelist) // this will print the info of the network interface of one container)
 
 		}
 	}
+
+	// Wrong ideolgy
 
 	// Iterate over each pod in the list and get the corresponding list of containers in that pod.
 	// for i := 0; i < len(podinfo); i++ {
@@ -121,10 +154,6 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 	op := (string(output))
 
 	return op
-}
-
-func getIncomingTraffic(podname string, podnamespace string, containername string, interfacename string) {
-
 }
 
 // ------------------------------------------------------------------------------------------------------------------
