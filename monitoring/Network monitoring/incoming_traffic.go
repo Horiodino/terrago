@@ -8,25 +8,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os/exec"
-
-	"k8s.io/client-go/kubernetes"
 	// "C:\Users\Holiodin\webgo\monitoring\Containermonitoring\metrices.go"
 )
 
 // how we can get the total incoming traffic
 // simply get the total number of bytes received on all interfaces by the pod
 
-func incomingtraffic() {
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err)
-	}
-
-	// using network interface to get the incoming traffic
-	// this for loop will iterate over all the pods and get the incoming traffic
-	totalincomingtraffic := totalincomingtraffic()
-	fmt.Println(totalincomingtraffic)
-}
 func totalincomingtraffic() {
 	/*
 
@@ -41,49 +28,68 @@ func totalincomingtraffic() {
 	// --------------------------------------------------------------------
 	//Get the list of all the endpoints in the cluster using the Kubernetes client API.
 	//Iterate over each endpoint in the list and get the corresponding list of pods behind that endpoint
-	slice, podinfo, totalnumofendpoints := getEndpoints()
+	slice, podinfo, totalnumofendpoints := getEndpoints() // forgot to add the getEndpoints function
 	fmt.Println(totalnumofendpoints)
 
-	// Iterate over each pod in the list and get the corresponding list of containers in that pod.
-	for i := 0; i < len(podinfo); i++ {
-		podname := podinfo[i].Name
-		podnamespace := podinfo[i].Namespace
-		fmt.Fprintf(w, "Pod Name: %s\n", podname, podnamespace)
-		fmt.Println("---------------------------")
+	for _, pod := range podinfo {
+		fmt.Println(pod)
 
-		// for lopping over the containers in the pod
-		for j := 0; j < len(podinfo[i].Containers); j++ {
-			containername := podinfo[i].Containers[j].Name
-			fmt.Println(containername)
-			fmt.Println("---------------------------")
+		// now get container info for each pod to get the network-interface
+		// for looping over the containers in the pod
+		for _, container := range pod.Containers {
+			fmt.Println(container)
 
 			// getting the list of interfaces in the container
-			interfacelist := getInterfaces(podname, podnamespace, containername)
+			// note this is only for a single container
+			interfacelist := getInterfaces(pod.Name, pod.Namespace, container.Name)
 			fmt.Println(interfacelist) // this will print the list of interfaces and their names
 
-			// for looping over the interfaces in the container
-			for k := 0; k < len(interfacelist); k++ {
-				interfacename := interfacelist[k].Name
-				fmt.Printf("Interface Name: %s\n", interfacename)
-				fmt.Println("---------------------------")
-
-				// getting the list of incoming traffic in the interface
-				incomingtrafficlist := getIncomingTraffic(podname, podnamespace, containername, interfacename)
-				fmt.Printf("Incoming Traffic List: %s\n", incomingtrafficlist)
-
-				// for looping over the incoming traffic in the interface
-				for m := 0; m < len(incomingtrafficlist); m++ {
-					incomingtraffic := incomingtrafficlist[m].Bytes
-					fmt.Fprintf(w, "Incoming Traffic: %s
-					fmt.Println("---------------------------")
-				}
-			}
 		}
-
 	}
+
+	// Iterate over each pod in the list and get the corresponding list of containers in that pod.
+	// for i := 0; i < len(podinfo); i++ {
+	// 	podname := podinfo[i].Name
+	// 	podnamespace := podinfo[i].Namespace
+	// 	fmt.Printf("Pod Name: %s\n", podname, podnamespace)
+	// 	fmt.Println("---------------------------")
+
+	// now get container info for each pod to get the network-interface
+
+	// for lopping over the containers in the pod
+	// for j := 0; j < len(podinfo[i].Containers); j++ {
+	// 	containername := podinfo[i].Containers[j].Name
+	// 	fmt.Println(containername)
+	// 	fmt.Println("---------------------------")
+
+	// getting the list of interfaces in the container
+	// note this is only for a single container
+	// interfacelist := getInterfaces(podname, podnamespace, containername)
+	// fmt.Println(interfacelist) // this will print the list of interfaces and their names
+
+	// for looping over the interfaces in the container
+	// for k := 0; k < len(interfacelist); k++ {
+	// 	interfacename := interfacelist[k].Name
+	// 	fmt.Printf("Interface Name: %s\n", interfacename)
+	// 	fmt.Println("---------------------------")
+
+	// 	// getting the list of incoming traffic in the interface
+	// 	incomingtrafficlist := getIncomingTraffic(podname, podnamespace, containername, interfacename)
+	// 	fmt.Printf("Incoming Traffic List: %s\n", incomingtrafficlist)
+
+	// 	// for looping over the incoming traffic in the interface
+	// 	for m := 0; m < len(incomingtrafficlist); m++ {
+	// 		incomingtraffic := incomingtrafficlist[m].Bytes
+	// 		fmt.Printf("Incoming Traffic: %s\n", incomingtraffic)
+	// 		fmt.Println("---------------------------")
+	// 	}
+	// }
+	//}
+
+	// }
 }
 
-func getInterfaces(podname string, podnamespace string, containername string) {
+func getInterfaces(podname string, podnamespace string, containername string) string {
 	// how we can get the inertfaces in the container
 	// we can get the list of interfaces in the container by using the following command
 	// kubectl exec -it <podname> -n <podnamespace> -c <containername> -- /bin/bash -c "cat /proc/net/dev | awk '{print $1}' | cut -d ':' -f1 | grep -v Inter-| grep -v face | grep -v lo"
@@ -97,56 +103,55 @@ func getInterfaces(podname string, podnamespace string, containername string) {
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 
 	if err := cmd.Start(); err != nil {
 		fmt.Println(err)
-		return
 	}
 
 	output, err := ioutil.ReadAll(stdout)
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 
 	if err := cmd.Wait(); err != nil {
 		fmt.Println(err)
-		return
 	}
 
-	fmt.Println(string(output))
-	// the  above command           cmd := exec.Command("kubectl", "exec", "-it", podname, "-n", podnamespace, "-c", containername, "--", "ifconfig")
-	// will return the list of interfaces in the container
+	op := (string(output))
+
+	return op
+}
+
+func getIncomingTraffic(podname string, podnamespace string, containername string, interfacename string) {
 
 }
 
 // ------------------------------------------------------------------------------------------------------------------
 
-func outgoingtraffic() {
+// func outgoingtraffic() {
 
-}
+// }
 
-func networktraffic() {
+// func networktraffic() {
 
-}
+// }
 
-func networklatency() {
+// func networklatency() {
 
-}
+// }
 
-func networkerrors() {
+// func networkerrors() {
 
-}
+// }
 
-func networkrequests() {
+// func networkrequests() {
 
-}
+// }
 
-func exposedports() {
+// func exposedports() {
 
-}
+// }
 
 // getting the network throughput
 
