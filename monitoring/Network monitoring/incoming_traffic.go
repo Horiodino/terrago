@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"k8s.io/client-go/kubernetes"
+	// "C:\Users\Holiodin\webgo\monitoring\Containermonitoring\metrices.go"
 )
 
 // how we can get the total incoming traffic
@@ -26,8 +27,7 @@ func incomingtraffic() {
 }
 func totalincomingtraffic() {
 	/*
-		Iterate over each endpoint in the list and get the corresponding list of pods behind that endpoint.
-		Iterate over each pod in the list and get the corresponding list of containers in that pod.
+
 		Iterate over each container in the list and get the corresponding list of interfaces in that container.
 		Iterate over each interface in the list and get the corresponding list of incoming traffic in that interface.
 		Add up the total incoming traffic for each interface to get the total incoming traffic for that container.
@@ -38,26 +38,26 @@ func totalincomingtraffic() {
 
 	// --------------------------------------------------------------------
 	//Get the list of all the endpoints in the cluster using the Kubernetes client API.
-	slice, totalnumofendpoints := getEndpoints()
+	//Iterate over each endpoint in the list and get the corresponding list of pods behind that endpoint
+	slice, podinfo, totalnumofendpoints := getEndpoints()
 	fmt.Println(totalnumofendpoints)
 
-	//Iterate over each endpoint in the list and get the corresponding list of pods behind that endpoint
-	for _, endpoint := range slice {
-		//Iterate over each pod in the list and get the corresponding list of containers in that pod.
-		podlist := getPods(endpoint)
+	// Iterate over each pod in the list and get the corresponding list of containers in that pod.
+	for i := 0; i < len(podinfo); i++ {
+		podname := podinfo[i].Name
+		podnamespace := podinfo[i].Namespace
+		fmt.Fprintf(w, "Pod Name: %s\n", podname, podnamespace)
+		fmt.Println("---------------------------")
+
+		// for lopping over the containers in the pod
+		for j := 0; j < len(podinfo[i].Containers); j++ {
+			containername := podinfo[i].Containers[j].Name
+			fmt.Fprintf(w, "Container Name: %s\n", containername)
+			fmt.Println("---------------------------")
+
+			// getting the list 
 	}
-}
 
-func getEndpoints() ([]string, int) {
-	//Get the list of all the endpoints in the cluster using the Kubernetes client API.
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err)
-	}
-
-	//Get the liat of pods corresponding to the endpoint
-
-	return nil, 0
 }
 
 // ------------------------------------------------------------------------------------------------------------------
