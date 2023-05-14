@@ -5,10 +5,8 @@
 package Networkmonitoring
 
 import (
-	"context"
 	"fmt"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -27,20 +25,42 @@ func incomingtraffic() {
 	fmt.Println(totalincomingtraffic)
 }
 func totalincomingtraffic() {
-	// how we can get the total incoming traffic
-	// expose the total number of incoming traffic as an API endpoint. we can use  web framework of
-	// choice to create a new HTTP endpoint that returns the total number of incoming bytes as a JSON response.
+	/*
+		Iterate over each endpoint in the list and get the corresponding list of pods behind that endpoint.
+		Iterate over each pod in the list and get the corresponding list of containers in that pod.
+		Iterate over each container in the list and get the corresponding list of interfaces in that container.
+		Iterate over each interface in the list and get the corresponding list of incoming traffic in that interface.
+		Add up the total incoming traffic for each interface to get the total incoming traffic for that container.
+		Add up the total incoming traffic for each container to get the total incoming traffic for that pod.
+		Add up the total incoming traffic for each pod to get the total incoming traffic for that endpoint.
+		Add up the total incoming traffic for all the endpoints to get the total incoming traffic for the entire cluster.
+	*/
 
-	// get the endpoints of the pods then get get then create a new HTTP endpoint that
-	//  returns the total number of incoming bytes as a JSON response.
-
-	// we already have endpoints of the pods and all the cluster
-	// import the getEndpoints() function from the endpoints.go file
-
+	// --------------------------------------------------------------------
+	//Get the list of all the endpoints in the cluster using the Kubernetes client API.
 	slice, totalnumofendpoints := getEndpoints()
 	fmt.Println(totalnumofendpoints)
 
+	//Iterate over each endpoint in the list and get the corresponding list of pods behind that endpoint
+	for _, endpoint := range slice {
+		//Iterate over each pod in the list and get the corresponding list of containers in that pod.
+		podlist := getPods(endpoint)
+	}
 }
+
+func getEndpoints() ([]string, int) {
+	//Get the list of all the endpoints in the cluster using the Kubernetes client API.
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+
+	//Get the liat of pods corresponding to the endpoint
+
+	return nil, 0
+}
+
+// ------------------------------------------------------------------------------------------------------------------
 
 func outgoingtraffic() {
 
