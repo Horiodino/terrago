@@ -122,38 +122,38 @@ func totalincomingtraffic() {
 	// }
 }
 
+// how we can get the inertfaces in the container
+// we can get the list of interfaces in the container by using the following command
+// kubectl exec -it <podname> -n <podnamespace> -c <containername> -- /bin/bash -c "cat /proc/net/dev | awk '{print $1}' | cut -d ':' -f1 | grep -v Inter-| grep -v face | grep -v lo"
+// this command will return the list of interfaces in the container
+// we can aslo run  the following command to get the list of interfaces in the container
+// kubectl exec -it <podname> -n <podnamespace> -c <containername> -- ifconfig
+// this command will return the list of interfaces in the container
 func getInterfaces(podname string, podnamespace string, containername string) string {
-	// how we can get the inertfaces in the container
-	// we can get the list of interfaces in the container by using the following command
-	// kubectl exec -it <podname> -n <podnamespace> -c <containername> -- /bin/bash -c "cat /proc/net/dev | awk '{print $1}' | cut -d ':' -f1 | grep -v Inter-| grep -v face | grep -v lo"
-	// this command will return the list of interfaces in the container
-	// we can aslo run  the following command to get the list of interfaces in the container
-	// kubectl exec -it <podname> -n <podnamespace> -c <containername> -- ifconfig
-	// this command will return the list of interfaces in the container
 
 	// running the command to get the list of interfaces in the container
 	cmd := exec.Command("kubectl", "exec", "-it", podname, "-n", podnamespace, "-c", containername, "--", "ifconfig")
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		fmt.Println(err)
-	}
+	// stdout, err := cmd.StdoutPipe()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
-	if err := cmd.Start(); err != nil {
-		fmt.Println(err)
-	}
+	// if err := cmd.Start(); err != nil {
+	// 	fmt.Println(err)
+	// }
 
-	output, err := ioutil.ReadAll(stdout)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// output, err := ioutil.ReadAll(stdout)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
-	if err := cmd.Wait(); err != nil {
-		fmt.Println(err)
-	}
+	// if err := cmd.Wait(); err != nil {
+	// 	fmt.Println(err)
+	// }
 
-	op := (string(output))
+	// op := (string(output))
 
-	return op
+	// return op
 }
 
 // ------------------------------------------------------------------------------------------------------------------
