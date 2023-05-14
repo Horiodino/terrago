@@ -6,7 +6,6 @@ package Networkmonitoring
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os/exec"
 	// "C:\Users\Holiodin\webgo\monitoring\Containermonitoring\metrices.go"
 )
