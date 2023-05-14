@@ -6,6 +6,8 @@ package Networkmonitoring
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os/exec"
 
 	"k8s.io/client-go/kubernetes"
 	// "C:\Users\Holiodin\webgo\monitoring\Containermonitoring\metrices.go"
@@ -52,11 +54,71 @@ func totalincomingtraffic() {
 		// for lopping over the containers in the pod
 		for j := 0; j < len(podinfo[i].Containers); j++ {
 			containername := podinfo[i].Containers[j].Name
-			fmt.Fprintf(w, "Container Name: %s\n", containername)
+			fmt.Println(containername)
 			fmt.Println("---------------------------")
 
-			// getting the list 
+			// getting the list of interfaces in the container
+			interfacelist := getInterfaces(podname, podnamespace, containername)
+			fmt.Println(interfacelist) // this will print the list of interfaces and their names
+
+			// for looping over the interfaces in the container
+			for k := 0; k < len(interfacelist); k++ {
+				interfacename := interfacelist[k].Name
+				fmt.Printf("Interface Name: %s\n", interfacename)
+				fmt.Println("---------------------------")
+
+				// getting the list of incoming traffic in the interface
+				incomingtrafficlist := getIncomingTraffic(podname, podnamespace, containername, interfacename)
+				fmt.Printf("Incoming Traffic List: %s\n", incomingtrafficlist)
+
+				// for looping over the incoming traffic in the interface
+				for m := 0; m < len(incomingtrafficlist); m++ {
+					incomingtraffic := incomingtrafficlist[m].Bytes
+					fmt.Fprintf(w, "Incoming Traffic: %s
+					fmt.Println("---------------------------")
+				}
+			}
+		}
+
 	}
+}
+
+func getInterfaces(podname string, podnamespace string, containername string) {
+	// how we can get the inertfaces in the container
+	// we can get the list of interfaces in the container by using the following command
+	// kubectl exec -it <podname> -n <podnamespace> -c <containername> -- /bin/bash -c "cat /proc/net/dev | awk '{print $1}' | cut -d ':' -f1 | grep -v Inter-| grep -v face | grep -v lo"
+	// this command will return the list of interfaces in the container
+	// we can aslo run  the following command to get the list of interfaces in the container
+	// kubectl exec -it <podname> -n <podnamespace> -c <containername> -- ifconfig
+	// this command will return the list of interfaces in the container
+
+	// running the command to get the list of interfaces in the container
+	cmd := exec.Command("kubectl", "exec", "-it", podname, "-n", podnamespace, "-c", containername, "--", "ifconfig")
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := cmd.Start(); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	output, err := ioutil.ReadAll(stdout)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if err := cmd.Wait(); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(output))
+	// the  above command           cmd := exec.Command("kubectl", "exec", "-it", podname, "-n", podnamespace, "-c", containername, "--", "ifconfig")
+	// will return the list of interfaces in the container
 
 }
 

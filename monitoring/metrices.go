@@ -20,6 +20,12 @@ import (
 	"time"
 )
 
+// aglobal struct for authorization client for kubernetes client so that DRY principle can be followed
+
+type client struct {
+	clientset *kubernetes.Clientset
+}
+
 // ----------------------------------------------------------------------------------------------------------------------------
 // as we will have multiple nodes we will define the nodes as an array
 // also we will define the cpu usage for the nodes as well memory usage for the nodes
