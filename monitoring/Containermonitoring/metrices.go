@@ -63,8 +63,8 @@ func containermatricesinfo() {
 				podName:  []string{pod.Name},
 				nsname:   []string{pod.Namespace},
 				node:     []string{pod.Spec.NodeName},
-				cpuUsage: []float64{cpu.GetCpuUsage(container.Name, pod.Name, pod.Namespace)},
-				// memoryUsage:           []float64{cpu.GetMemoryUses(container.Name, pod.Name, pod.Namespace)},
+				cpuUsage: []float64{GetCpuUsage(container.Name, pod.Name, pod.Namespace)},
+				// memoryUsage:           []float64{GetMemoryUses(container.Name, pod.Name, pod.Namespace)},
 				// diskIo:                []float64{cpu.GetDiskIo(container.Name, pod.Name, pod.Namespace)},
 				networkTx: []int{0},
 				networkRx: []int{0},
@@ -100,6 +100,7 @@ func GetCpuUsage(containerName string, podName string, namespace string) (float6
 	if err != nil {
 		return 0, fmt.Errorf("failed to get pod: %v", err)
 	}
+	// pod.GetCreationTimestamp() tells us when the pod was created
 	startTime := pod.GetCreationTimestamp().Time
 
 	containerMetrics, err := metricsClientset.MetricsV1beta1().PodMetricses(namespace).Get(context.Background(), podName, v1.GetOptions{})
@@ -121,9 +122,8 @@ func GetCpuUsage(containerName string, podName string, namespace string) (float6
 		return 0, fmt.Errorf("container not found: %s", containerName)
 	}
 	cpuUsage := container.Usage.Cpu().MilliValue()
+	// this elapsed time is the time since the pod was created
 	elapsedTime := time.Since(startTime)
 	cpuUsagePercent := float64(cpuUsage) / float64(elapsedTime.Nanoseconds()) * 100
 	return cpuUsagePercent, nil
 }
-
-
