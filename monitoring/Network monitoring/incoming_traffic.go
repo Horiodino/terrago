@@ -89,6 +89,11 @@ func totalincomingtraffic() {
 // this command will return the list of interfaces in the container
 func getInterfaces(podname string, podnamespace string, containername string) string {
 
+	// we will ise ifconfig command to get the list of interfaces in the container
+	// then we will get the total incoming traffic for each interface
+	// we can have multiple interfaces in the container
+	// such as eth0, eth1, eth2, eth3, lo, etc
+
 }
 
 // ------------------------------------------------------------------------------------------------------------------
