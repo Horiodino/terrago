@@ -7,6 +7,7 @@ package Networkmonitoring
 import (
 	"fmt"
 	"os/exec"
+	"strings"
 	// "C:\Users\Holiodin\webgo\monitoring\Containermonitoring\metrices.go"
 )
 
@@ -77,48 +78,6 @@ func totalincomingtraffic() {
 		}
 	}
 
-	// Wrong ideolgy
-
-	// Iterate over each pod in the list and get the corresponding list of containers in that pod.
-	// for i := 0; i < len(podinfo); i++ {
-	// 	podname := podinfo[i].Name
-	// 	podnamespace := podinfo[i].Namespace
-	// 	fmt.Printf("Pod Name: %s\n", podname, podnamespace)
-	// 	fmt.Println("---------------------------")
-
-	// now get container info for each pod to get the network-interface
-
-	// for lopping over the containers in the pod
-	// for j := 0; j < len(podinfo[i].Containers); j++ {
-	// 	containername := podinfo[i].Containers[j].Name
-	// 	fmt.Println(containername)
-	// 	fmt.Println("---------------------------")
-
-	// getting the list of interfaces in the container
-	// note this is only for a single container
-	// interfacelist := getInterfaces(podname, podnamespace, containername)
-	// fmt.Println(interfacelist) // this will print the list of interfaces and their names
-
-	// for looping over the interfaces in the container
-	// for k := 0; k < len(interfacelist); k++ {
-	// 	interfacename := interfacelist[k].Name
-	// 	fmt.Printf("Interface Name: %s\n", interfacename)
-	// 	fmt.Println("---------------------------")
-
-	// 	// getting the list of incoming traffic in the interface
-	// 	incomingtrafficlist := getIncomingTraffic(podname, podnamespace, containername, interfacename)
-	// 	fmt.Printf("Incoming Traffic List: %s\n", incomingtrafficlist)
-
-	// 	// for looping over the incoming traffic in the interface
-	// 	for m := 0; m < len(incomingtrafficlist); m++ {
-	// 		incomingtraffic := incomingtrafficlist[m].Bytes
-	// 		fmt.Printf("Incoming Traffic: %s\n", incomingtraffic)
-	// 		fmt.Println("---------------------------")
-	// 	}
-	// }
-	//}
-
-	// }
 }
 
 // how we can get the inertfaces in the container
@@ -130,29 +89,6 @@ func totalincomingtraffic() {
 // this command will return the list of interfaces in the container
 func getInterfaces(podname string, podnamespace string, containername string) string {
 
-	// running the command to get the list of interfaces in the container
-	cmd := exec.Command("kubectl", "exec", "-it", podname, "-n", podnamespace, "-c", containername, "--", "ifconfig")
-	// stdout, err := cmd.StdoutPipe()
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// if err := cmd.Start(); err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// output, err := ioutil.ReadAll(stdout)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// if err := cmd.Wait(); err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// op := (string(output))
-
-	// return op
 }
 
 // ------------------------------------------------------------------------------------------------------------------

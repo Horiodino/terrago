@@ -3,7 +3,6 @@ package Containermonitoring
 import (
 	"context"
 	"fmt"
-	"internal/cpu"
 	"log"
 	"time"
 
