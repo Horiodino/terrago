@@ -97,6 +97,9 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 	// getting the list of interfaces in the container
 	// note this is only for a single container
 
+	//now we will ecter into the container
+	// output=$(ip -s -d link show eth0 | awk '/RX:/{getline; print $1}')
+
 }
 
 // ------------------------------------------------------------------------------------------------------------------
