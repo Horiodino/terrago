@@ -94,6 +94,9 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 	// we can have multiple interfaces in the container
 	// such as eth0, eth1, eth2, eth3, lo, etc
 
+	// getting the list of interfaces in the container
+	// note this is only for a single container
+
 }
 
 // ------------------------------------------------------------------------------------------------------------------
