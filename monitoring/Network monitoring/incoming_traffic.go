@@ -98,6 +98,16 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 	// note this is only for a single container
 
 	//now we will ecter into the container
+	// ruunning the command in the container
+	// kubectl exec -it <podname> -n <podnamespace> -c <containername> ip -s -d link show eth0 | awk '/RX:/{getline; print $1}'
+	// this command retirn the no of bytes received on the eth0 interface
+	// now we will save the output of the command in a variable
+	output=$(kubectl exec -it <podname> -n <podnamespace> -c <containername> ip -s -d link show eth0 | awk '/RX:/{getline; print $1}')
+
+	var bytesreceived int
+	bytesreceived = output
+
+
 	// output=$(ip -s -d link show eth0 | awk '/RX:/{getline; print $1}')
 
 }
