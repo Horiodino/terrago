@@ -115,7 +115,10 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 	// kubectl exec -it <podname> -n <podnamespace> -c <containername> ip -s -d link show eth0 | awk '/RX:/{getline; print $1}'
 	// this command retirn the no of bytes received on the eth0 interface
 	// now we will save the output of the command in a variable
-	cmd := exec.Command("kubectl", "exec", "-it", podName, "-n", podNamespace, "-c", containerName, "ip", "-s", "-d", "link", "show", "eth0")
+
+	// * before that we need to define the $podname and assign it the value of the podname
+
+	cmd := exec.Command("kubectl", "exec", "-it", podname, "-n", podnamespace, "-c", containername, "ip", "-s", "-d", "link", "show", "eth0")
 	// this cmd.Stdout = os.Stdout will print the output of the command in the terminal
 	// it is pretty much like the docker exec command
 	cmd.Stdout = os.Stdout
