@@ -6,8 +6,8 @@ package Networkmonitoring
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
-	"strings"
 	// "C:\Users\Holiodin\webgo\monitoring\Containermonitoring\metrices.go"
 )
 
@@ -97,16 +97,40 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 	// getting the list of interfaces in the container
 	// note this is only for a single container
 
+	// before that make sure that entered the correct podname, podnamespace and containername
+
+	/*
+
+	****************************************
+	*                                      *
+	*             Pending                  *
+	*                                      *
+	****************************************
+
+
+	 */
+
 	//now we will ecter into the container
 	// ruunning the command in the container
 	// kubectl exec -it <podname> -n <podnamespace> -c <containername> ip -s -d link show eth0 | awk '/RX:/{getline; print $1}'
 	// this command retirn the no of bytes received on the eth0 interface
 	// now we will save the output of the command in a variable
-	output=$(kubectl exec -it <podname> -n <podnamespace> -c <containername> ip -s -d link show eth0 | awk '/RX:/{getline; print $1}')
+	cmd := exec.Command("kubectl", "exec", "-it", podName, "-n", podNamespace, "-c", containerName, "ip", "-s", "-d", "link", "show", "eth0")
+	// this cmd.Stdout = os.Stdout will print the output of the command in the terminal
+	// it is pretty much like the docker exec command
+	cmd.Stdout = os.Stdout
+	// and cmd.Stderr = os.Stderr will print the error in the terminal dont get panic
+	// its in the os package you doesnot need to get in to the details of it
+	// just understand that its use to print the error in the terminal that it
+	cmd.Stderr = os.Stderr
 
-	var bytesreceived int
-	bytesreceived = output
+	// output, err := cmd.Output()
+	// if err != nil {
+	// 	fmt.Println("Error executing command:", err)
+	// }
 
+	// outputString := string(output)
+	// fmt.Println(outputString)
 
 	// output=$(ip -s -d link show eth0 | awk '/RX:/{getline; print $1}')
 
