@@ -124,13 +124,13 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 	// just understand that its use to print the error in the terminal that it
 	cmd.Stderr = os.Stderr
 
-	// output, err := cmd.Output()
-	// if err != nil {
-	// 	fmt.Println("Error executing command:", err)
-	// }
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println("Error executing command:", err)
+	}
 
-	// outputString := string(output)
-	// fmt.Println(outputString)
+	outputString := string(output)
+	fmt.Println(outputString)
 
 	// output=$(ip -s -d link show eth0 | awk '/RX:/{getline; print $1}')
 
