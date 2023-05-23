@@ -87,17 +87,7 @@ func totalincomingtraffic() {
 // we can aslo run  the following command to get the list of interfaces in the container
 // kubectl exec -it <podname> -n <podnamespace> -c <containername> -- ifconfig
 // this command will return the list of interfaces in the container
-func getInterfaces(podname string, podnamespace string, containername string) string {
-
-	// we will ise ifconfig command to get the list of interfaces in the container
-	// then we will get the total incoming traffic for each interface
-	// we can have multiple interfaces in the container
-	// such as eth0, eth1, eth2, eth3, lo, etc
-
-	// getting the list of interfaces in the container
-	// note this is only for a single container
-
-	// before that make sure that entered the correct podname, podnamespace and containername
+func getInterfaces(podname string, podnamespace string, containername string) error {
 
 	/*
 
@@ -109,14 +99,6 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 
 
 	 */
-
-	//now we will ecter into the container
-	// ruunning the command in the container
-	// kubectl exec -it <podname> -n <podnamespace> -c <containername> ip -s -d link show eth0 | awk '/RX:/{getline; print $1}'
-	// this command retirn the no of bytes received on the eth0 interface
-	// now we will save the output of the command in a variable
-
-	// * before that we need to define the $podname and assign it the value of the podname
 
 	cmd := exec.Command("kubectl", "exec", "-it", podname, "-n", podnamespace, "-c", containername, "ip", "-s", "-d", "link", "show", "eth0")
 	// this cmd.Stdout = os.Stdout will print the output of the command in the terminal
@@ -136,6 +118,7 @@ func getInterfaces(podname string, podnamespace string, containername string) st
 	fmt.Println(outputString)
 
 	// output=$(ip -s -d link show eth0 | awk '/RX:/{getline; print $1}')
+	return err.Error()
 
 }
 
