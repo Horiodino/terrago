@@ -45,3 +45,7 @@ func getEndpoints() {
 func getHTTPRequests() {
 
 }
+
+func exposedServices() {
+
+}

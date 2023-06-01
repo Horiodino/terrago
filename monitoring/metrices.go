@@ -6,7 +6,7 @@ import (
 	"context"
 
 	// Kubernetes API client libraries and packages
-	"go.mongodb.org/mongo-driver/mongo"
+	".mongodb.org/mongo-driver/mongo"go
 	"go.mongodb.org/mongo-driver/mongo/options"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -102,7 +102,7 @@ func getinfo() {
 
 }
 
-ype NodeInfo struct {
+type NodeInfo struct {
 	Name   []string
 	Memory []float64
 	CPU    []float64
@@ -187,24 +187,19 @@ func cpu() ([]NodeInfo, error) {
 	return nodeInfoList, nil
 
 }
-ype resources struct {
-	clusterName            string
-	cpu                    float64
-	cores                  int64
-	memory                 float64
-	disk                   float64
-	nodes                  []string
-	pods                   []string
-	services               []string
-	ingresses              []string
-	deployments            []string
-	statefulsets           []string
-	daemonsets             []string
-	confimap               []string
-	secret                 []string
-	namespaces             []string
-	persistentvolumes      []string
-	persistentvolumeclaims []string
+
+type resources struct {
+	pods                   string
+	services               string
+	ingresses              string
+	deployments            string
+	statefulsets           string
+	daemonsets             string
+	confimap               string
+	secret                 string
+	namespaces             string
+	persistentvolumes      string
+	persistentvolumeclaims string
 }
 
 // now we will decalre an array of the struct which we created above
@@ -212,131 +207,106 @@ var resourcesList []resources
 
 // we will get the info regarding the cluster and its components
 func clusterInfo() ([]resources, error) {
-	// we will get the info regarding the cluster and its components
-	// we will use kubernetes API for this
 
-	// creat the kubernetes client
-	config, err := rest.InClusterConfig()
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// create the clientset
-	// here its taking the config which we created above
+
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// get the list of nodes
-	nod, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	// get the list of configmaps
+
 	cm, err := clientset.CoreV1().ConfigMaps("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// get the list of secrets
 	sec, err := clientset.CoreV1().Secrets("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// get the list of pods
 	po, err := clientset.CoreV1().Pods("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	// get the list of services
+
 	svc, err := clientset.CoreV1().Services("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	// get the list of deployments
+
 	depl, err := clientset.AppsV1().Deployments("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	// get the list of statefulsets
+
 	ss, err := clientset.AppsV1().StatefulSets("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	// get the list of daemonsets
+
 	ds, err := clientset.AppsV1().DaemonSets("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	// get the list of ingresses
+
 	ig, err := clientset.NetworkingV1().Ingresses("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
-	// get the list of persistentvolumes
+
 	pv, err := clientset.CoreV1().PersistentVolumes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 
 	}
 
-	// get the list of persistentvolumeclaims
 	pvc, err := clientset.CoreV1().PersistentVolumeClaims("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// get the list of namespaces
 	ns, err := clientset.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// now we will append the data to the struct
-	// we will get the info regarding the cluster and its components
-
-	// get the cluster name
-	clusterName := nod.Items[0].Labels["kubernetes.io/cluster-service"]
-
-	// get the cpu usage for the cluster
-	cpuUsage := nod.Items[0].Status.Allocatable.Cpu().MilliValue()
-	// get the cpu cores for the cluster
-	cpuCores := nod.Items[0].Status.Capacity.Cpu().MilliValue()
-	// get the cpu usage percentage for the cluster
-	cpuUsagePercentage := float64(cpuUsage) / float64(cpuCores) * 100
-
-	// get the memory usage for the cluster
-	memoryUsage := nod.Items[0].Status.Allocatable.Memory().Value()
-	// get the memory capacity for the cluster
-	memoryCapacity := nod.Items[0].Status.Capacity.Memory().Value()
-
-	// now append the data to the node struct
 	resourcesList = append(resourcesList, resources{
-		clusterName:            clusterName,
-		cpu:                    cpuUsagePercentage,
-		cores:                  cpuCores,
-		nodes:                  []string{strconv.Itoa(len(nod.Items))},
-		memory:                 float64(memoryUsage) / float64(memoryCapacity) * 100,
-		disk:                   float64(nod.Items[0].Status.Allocatable.StorageEphemeral().Value()) / float64(nod.Items[0].Status.Capacity.StorageEphemeral().Value()) * 100,
-		pods:                   []string{strconv.Itoa(len(po.Items))},
-		services:               []string{strconv.Itoa(len(svc.Items))},
-		ingresses:              []string{strconv.Itoa(len(ig.Items))},
-		deployments:            []string{strconv.Itoa(len(depl.Items))},
-		statefulsets:           []string{strconv.Itoa(len(ss.Items))},
-		daemonsets:             []string{strconv.Itoa(len(ds.Items))},
-		confimap:               []string{strconv.Itoa(len(cm.Items))},
-		secret:                 []string{strconv.Itoa(len(sec.Items))},
-		namespaces:             []string{strconv.Itoa(len(ns.Items))},
-		persistentvolumeclaims: []string{strconv.Itoa(len(pvc.Items))},
-		persistentvolumes:      []string{strconv.Itoa(len(pv.Items))},
+
+		pods:                   strconv.Itoa(len(po.Items)),
+		services:               strconv.Itoa(len(svc.Items)),
+		ingresses:              strconv.Itoa(len(ig.Items)),
+		deployments:            strconv.Itoa(len(depl.Items)),
+		statefulsets:           strconv.Itoa(len(ss.Items)),
+		daemonsets:             strconv.Itoa(len(ds.Items)),
+		confimap:               strconv.Itoa(len(cm.Items)),
+		secret:                 strconv.Itoa(len(sec.Items)),
+		namespaces:             strconv.Itoa(len(ns.Items)),
+		persistentvolumes:      strconv.Itoa(len(pv.Items)),
+		persistentvolumeclaims: strconv.Itoa(len(pvc.Items)),
 	})
+
+	for _, resource := range resourcesList {
+		fmt.Println("Pods: ", resource.pods)
+		fmt.Println("Services: ", resource.services)
+		fmt.Println("Ingresses: ", resource.ingresses)
+		fmt.Println("Deployments: ", resource.deployments)
+		fmt.Println("Statefulsets: ", resource.statefulsets)
+		fmt.Println("Daemonsets: ", resource.daemonsets)
+		fmt.Println("Configmaps: ", resource.confimap)
+		fmt.Println("Secrets: ", resource.secret)
+		fmt.Println("Namespaces: ", resource.namespaces)
+		fmt.Println("Persistent Volumes: ", resource.persistentvolumes)
+		fmt.Println("Persistent Volume Claims: ", resource.persistentvolumeclaims)
+	}
 
 	return resourcesList, nil
 }
-
-var ns []namespace
-
-type namespace struct {
+//works till here
+type namespacestruct struct {
 	namespaceName            string
 	nspods                   []string
 	nsservices               []string
@@ -348,101 +318,125 @@ type namespace struct {
 	nssecret                 []string
 	nspersistentvolumeclaims []string
 	nspersistentvolumes      []string
+	nsjobs                   []string
 }
 
-var r *resources
+var namespacesList []namespacestruct
 
-// now we will get the info regarding the namespces
-func namespacesInfo() ([]namespace, error) {
-	namespaces := r.namespaces
-	for i := 0; i < len(namespaces); i++ {
-		config, err := rest.InClusterConfig()
-		if err != nil {
-			log.Fatal(err)
-		}
-		clientset, err := kubernetes.NewForConfig(config)
-		if err != nil {
-			log.Fatal(err)
-		}
-		po, err := clientset.CoreV1().Pods(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		svc, err := clientset.CoreV1().Services(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		ig, err := clientset.NetworkingV1().Ingresses(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		depl, err := clientset.AppsV1().Deployments(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		ss, err := clientset.AppsV1().StatefulSets(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		ds, err := clientset.AppsV1().DaemonSets(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		cm, err := clientset.CoreV1().ConfigMaps(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		sec, err := clientset.CoreV1().Secrets(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		pvc, err := clientset.CoreV1().PersistentVolumeClaims(namespaces[i]).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		pv, err := clientset.CoreV1().PersistentVolumes().List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Create a new namespace struct
-		newNS := namespace{namespaceName: namespaces[i]}
-
-		// Append relevant data to the struct fields
-		for _, pod := range po.Items {
-			newNS.nspods = append(newNS.nspods, pod.Name)
-		}
-		for _, service := range svc.Items {
-			newNS.nsservices = append(newNS.nsservices, service.Name)
-		}
-		for _, ingress := range ig.Items {
-			newNS.nsingresses = append(newNS.nsingresses, ingress.Name)
-		}
-		for _, deployment := range depl.Items {
-			newNS.nsdeployments = append(newNS.nsdeployments, deployment.Name)
-		}
-		for _, statefulset := range ss.Items {
-			newNS.nsstatefulsets = append(newNS.nsstatefulsets, statefulset.Name)
-		}
-		for _, daemonset := range ds.Items {
-			newNS.nsdaemonsets = append(newNS.nsdaemonsets, daemonset.Name)
-		}
-		for _, confimap := range cm.Items {
-			newNS.nsconfimap = append(newNS.nsconfimap, confimap.Name)
-		}
-		for _, secret := range sec.Items {
-			newNS.nssecret = append(newNS.nssecret, secret.Name)
-		}
-		for _, persistentvolumeclaim := range pvc.Items {
-			newNS.nspersistentvolumeclaims = append(newNS.nspersistentvolumeclaims, persistentvolumeclaim.Name)
-		}
-		for _, persistentvolume := range pv.Items {
-			newNS.nspersistentvolumes = append(newNS.nspersistentvolumes, persistentvolume.Name)
-		}
-
-		// Append the new namespace struct to the namespace slice
-		ns = append(ns, newNS)
+func namespacesInfo() ([]namespacestruct, error) {
+	// we will get the info for a particular namespace like
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
+	if err != nil {
+		log.Fatal(err)
 	}
-	return ns, nil
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	namespaces, err := clientset.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	i := 1
+
+	for _, namespace := range namespaces.Items {
+
+		nsname := namespace.Name
+		//gett all the info regarding the namespcace
+		pods, err := clientset.CoreV1().Pods(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		////// PENDING GET ALL THE RESOURCES NAMES
+		services, err := clientset.CoreV1().Services(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		ingresses, err := clientset.NetworkingV1().Ingresses(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		deployments, err := clientset.AppsV1().Deployments(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		statefulsets, err := clientset.AppsV1().StatefulSets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		daemonsets, err := clientset.AppsV1().DaemonSets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		confimap, err := clientset.CoreV1().ConfigMaps(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		secret, err := clientset.CoreV1().Secrets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		persistentvolumeclaims, err := clientset.CoreV1().PersistentVolumeClaims(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		persistentvolumes, err := clientset.CoreV1().PersistentVolumes().List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println("working", i)
+		jobs, err := clientset.BatchV1().Jobs(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		namespaceInfo := namespacestruct{
+			namespaceName:            nsname,
+			nspods:                   []string{strconv.Itoa(len(pods.Items))},
+			nsservices:               []string{strconv.Itoa(len(services.Items))},
+			nsingresses:              []string{strconv.Itoa(len(ingresses.Items))},
+			nsdeployments:            []string{strconv.Itoa(len(deployments.Items))},
+			nsstatefulsets:           []string{strconv.Itoa(len(statefulsets.Items))},
+			nsdaemonsets:             []string{strconv.Itoa(len(daemonsets.Items))},
+			nsconfimap:               []string{strconv.Itoa(len(confimap.Items))},
+			nssecret:                 []string{strconv.Itoa(len(secret.Items))},
+			nspersistentvolumeclaims: []string{strconv.Itoa(len(persistentvolumeclaims.Items))},
+			nspersistentvolumes:      []string{strconv.Itoa(len(persistentvolumes.Items))},
+			nsjobs:                   []string{strconv.Itoa(len(jobs.Items))},
+		}
+
+		namespacesList = append(namespacesList, namespaceInfo)
+		for _, namespace := range namespacesList {
+			fmt.Println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
+			fmt.Println("┃ Namespace Name: ", namespace.namespaceName)
+			fmt.Println("┃ Pods: ", namespace.nspods)
+			fmt.Println("┃ Services: ", namespace.nsservices)
+			fmt.Println("┃ Ingresses: ", namespace.nsingresses)
+			fmt.Println("┃ Deployments: ", namespace.nsdeployments)
+			fmt.Println("┃ Statefulsets: ", namespace.nsstatefulsets)
+			fmt.Println("┃ Daemonsets: ", namespace.nsdaemonsets)
+			fmt.Println("┃ Configmaps: ", namespace.nsconfimap)
+			fmt.Println("┃ Secrets: ", namespace.nssecret)
+			fmt.Println("┃ Persistent Volume Claims: ", namespace.nspersistentvolumeclaims)
+			fmt.Println("┃ Persistent Volumes: ", namespace.nspersistentvolumes)
+			fmt.Println("┃ Jobs: ", namespace.nsjobs)
+			fmt.Println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
+			fmt.Println("")
+			fmt.Println("")
+
+		}
+
+	}
+
+	return namespacesList, nil
 }
 
