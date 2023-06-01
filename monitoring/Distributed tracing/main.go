@@ -1,1 +1,0 @@
-//  Kubernetes applications often consist of multiple microservices, making it difficult to trace requests across the entire application stack. You can use tools such as Jaeger or Zipkin to trace requests across microservices, which can help you identify performance bottlenecks and troubleshoot issues.

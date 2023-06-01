@@ -26,9 +26,6 @@ type client struct {
 	clientset *kubernetes.Clientset
 }
 
-// ----------------------------------------------------------------------------------------------------------------------------
-// as we will have multiple nodes we will define the nodes as an array
-// also we will define the cpu usage for the nodes as well memory usage for the nodes
 type monitoring struct {
 	clusterName string
 	cpu         float64
@@ -105,83 +102,7 @@ func getinfo() {
 
 }
 
-// now we will save the info that we saved in the struct to the database
-// HOW TO CALL THIS FUNCTION ?
-func savedata() {
-	// first of all we will connect to the database
-	// we will use mongoDB for this
-	// create the client
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// create the context
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	// create the database if it does not exist
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// create the database
-	database := client.Database("monitoring")
-
-	// create the collection
-	collection := database.Collection("cluster")
-
-	// now we will insert the data to the database
-	// create the document
-	// we will use the struct that we created above
-
-	document := monitoring{
-		clusterName: m.clusterName,
-		cpu:         m.cpu,
-		cores:       m.cores,
-		nodes:       m.nodes,
-		totalmemory: m.totalmemory,
-		usedmemory:  m.usedmemory,
-		disk:        m.disk,
-		totaldisk:   m.totaldisk,
-		billing:     m.billing,
-	}
-
-	// insert the document to the database
-	_, err = collection.InsertOne(ctx, document)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// now we will close the connection
-	err = client.Disconnect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-// there is one more catch here as we are building the monitoring system for the entire cluster
-// we also need that it will show the info in a periodic manner
-// so we will use the time package for this that will run the function in a periodic manner
-// and save the data to the database
-
-func periodic() {
-	ticker := time.NewTicker(1 * time.Minute)
-
-	// run the function in a periodic manner
-	for range ticker.C {
-		// get the info
-		getinfo()
-		// save the info to the database
-		savedata()
-	}
-}
-
-// ----------------------------------------------------------------------------------------------------------------------------
-
-// dont be confused ,   this struct is for the nodes info not for the entire cluster
-type NodeInfo struct {
+ype NodeInfo struct {
 	Name   []string
 	Memory []float64
 	CPU    []float64
@@ -266,11 +187,7 @@ func cpu() ([]NodeInfo, error) {
 	return nodeInfoList, nil
 
 }
-
-// ----------------------------------------------------------------------------------------------------------------------------
-
-// ressources struct for entire cluster
-type resources struct {
+ype resources struct {
 	clusterName            string
 	cpu                    float64
 	cores                  int64
@@ -417,97 +334,6 @@ func clusterInfo() ([]resources, error) {
 	return resourcesList, nil
 }
 
-// as we are using the kubernetes API to get the info regarding the cluster and its components
-// to use mongodb we will create a struct which will have the same fields as the struct which we created above
-// we will use this struct to insert the data into the mongodb
-// not surly if this is the best way  but working to saving in json format
-type clusterInfoMongo struct {
-	clusterName            string
-	cpu                    float64
-	cores                  int64
-	nodes                  []string
-	memory                 float64
-	disk                   float64
-	pods                   []string
-	services               []string
-	ingresses              []string
-	deployments            []string
-	statefulsets           []string
-	daemonsets             []string
-	confimap               []string
-	secret                 []string
-	namespaces             []string
-	persistentvolumeclaims []string
-	persistentvolumes      []string
-}
-
-// this function will insert the data into the mongodb
-func insertDataMongo() error {
-
-	// create a new mongo client
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// create a new context
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	// connect to the mongo client
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// create a new database
-	database := client.Database("clusterInfo")
-
-	// create a new collection
-	collection := database.Collection("clusterInfo")
-
-	// now we will insert the data into the collection
-	for _, v := range resourcesList {
-
-		// create a new struct
-		clusterInfoMongo := clusterInfoMongo{
-			clusterName:            v.clusterName,
-			cpu:                    v.cpu,
-			cores:                  v.cores,
-			nodes:                  v.nodes,
-			memory:                 v.memory,
-			disk:                   v.disk,
-			pods:                   v.pods,
-			services:               v.services,
-			ingresses:              v.ingresses,
-			deployments:            v.deployments,
-			statefulsets:           v.statefulsets,
-			daemonsets:             v.daemonsets,
-			confimap:               v.confimap,
-			secret:                 v.secret,
-			namespaces:             v.namespaces,
-			persistentvolumeclaims: v.persistentvolumeclaims,
-			persistentvolumes:      v.persistentvolumes,
-		}
-
-		// insert the data into the collection
-		_, err := collection.InsertOne(ctx, clusterInfoMongo)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	return nil
-}
-
-// ----------------------------------------------------------------------------------------------------------------------------
-
-// before that lets get the namespace name from the resources struct
-// namepace struct
-
-// there is a little problem with the namespace struct
-// we created the struct for namespace but the problem is that we are just getting one namespace
-// we need to get the info regarding all the namespaces and inside that we need to get the info regarding the pods etc
-// so we will create a slice of the namespace struct
 var ns []namespace
 
 type namespace struct {
@@ -620,42 +446,3 @@ func namespacesInfo() ([]namespace, error) {
 	return ns, nil
 }
 
-// now we will save the ns slice to the database
-func saveNamespacesInfo() error {
-
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	collection := client.Database("kubernetes").Collection("namespaces")
-	// now we will insert the data to the database
-	for i := 0; i < len(ns); i++ {
-		_, err := collection.InsertOne(context.Background(), ns[i])
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	return nil
-
-}
-
-// ----------------------------------------------------------------------------------------------------------------------------
-func run() error {
-	// runnning all the functions
-	periodic() // save data and getingo fun every 5 seconds
-	cpu()
-	clusterInfo()
-	insertDataMongo()
-	namespacesInfo()
-	saveNamespacesInfo()
-
-	return nil
-
-}
