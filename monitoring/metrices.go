@@ -460,6 +460,7 @@ type pods struct {
 	poStatus string
 	podCPU  string
 	podMEM  string
+	poImages []string
 }
 // key value for services
 type services struct {
@@ -532,7 +533,49 @@ func namespaceInfoDetailed(){
 		if err != nil {
 			log.Fatal(err)
 		}
-		
+
+		var podList []pods
+		var serviceList []services
+		var ingressList []ingresses
+
+		for _, pod := range pods.Items {
+			podName := pod.Name
+			pod.Status := pod.Status
+			podCPU := pod.Spec.Containers[0].Resources.Requests.Cpu().String()
+			podMEM := pod.Spec.Containers[0].Resources.Requests.Memory().String()
+			var podImages []string
+			for _, container := range pod.Spec.Containers {
+				podImages = append(podImages, container.Image.String())
+			}
+			podInfo := pods{
+				podName: podName,
+				poStatus: podStatus,
+				podCPU: podCPU,
+				podMEM: podMEM,
+				poImages: podImages,
+			}
+			podList = append(podList, podInfo)
+
+			svcname := services.Name
+			svcType := services.Type
+			svcTarget := services.Spec.Selector
+			svcTargetPort := services.Spec.Ports[0].TargetPort.String()
+			serviceInfo := services{
+				serviceName: svcname,
+				serviceType: svcType,
+				serviceTarget: svcTarget,
+				serviceTargetPort: svcTargetPort,
+			}
+
+			serviceList = append(serviceList, serviceInfo)
+
+			
+			
+
+
+		}
+
+
 
 	}
 
