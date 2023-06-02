@@ -440,3 +440,103 @@ func namespacesInfo() ([]namespacestruct, error) {
 	return namespacesList, nil
 }
 
+type namespaceInfoDetailed struct {
+	namespaceName            string
+	nspods                   []string
+	nsservices               []string
+	nsingresses              []string
+	nsdeployments            []string
+	nsstatefulsets           []string
+	nsdaemonsets             []string
+	nsconfimap               []string
+	nssecret                 []string
+	nspersistentvolumeclaims []string
+	nspersistentvolumes      []string
+	nsjobs                   []string
+}
+// key value pairs pods for resoueces and limits
+type pods struct {
+	podName string
+	poStatus string
+	podCPU  string
+	podMEM  string
+}
+// key value for services
+type services struct {
+	serviceName string
+	serviceType string
+	serviceTarget string
+	serviceTargetPort string
+}
+// key value for ingresses
+type ingresses struct {
+	ingressName string
+	ingressHost string
+	ingressPath string
+	ingressTarget string
+	ingressTargetPort string
+	ingressesLBtype string
+}
+
+
+func namespaceInfoDetailed(){
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
+	if err != nil {
+		log.Fatal(err)
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	namespaces, err := clientset.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		lof.Fatal(err)
+	}
+
+	for _, namespace := range namespaces.Items {
+		nsname := namespace.Name
+		pods , err := clientset.CoreV1().Pods(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		services, err := clientset.CoreV1().Services(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		ingresses, err := clientset.NetworkingV1().Ingresses(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		deployments, err := clientset.AppsV1().Deployments(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		statefulsets, err := clientset.AppsV1().StatefulSets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		daemonsets, err := clientset.AppsV1().DaemonSets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		confimap, err := clientset.CoreV1().ConfigMaps(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		secret, err := clientset.CoreV1().Secrets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		persistentvolumeclaims, err := clientset.CoreV1().PersistentVolumeClaims(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		
+
+	}
+
+	
+
+}
+
