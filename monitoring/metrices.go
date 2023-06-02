@@ -440,47 +440,51 @@ func namespacesInfo() ([]namespacestruct, error) {
 	return namespacesList, nil
 }
 
+
 type namespaceInfoDetailed struct {
-	namespaceName            string
-	nspods                   []string
-	nsservices               []string
-	nsingresses              []string
-	nsdeployments            []string
-	nsstatefulsets           []string
-	nsdaemonsets             []string
-	nsconfimap               []string
-	nssecret                 []string
-	nspersistentvolumeclaims []string
-	nspersistentvolumes      []string
-	nsjobs                   []string
+	namespaceName string
+	nspods        []nspods
+	nsservices    []nsservices
+	nsingresses   []nsingresses
+	// nsdeployments            [][]string
+	// nsstatefulsets           [][]string
+	// nsdaemonsets             [][]string
+	// nsconfimap               [][]string
+	// nssecret                 [][]string
+	// nspersistentvolumeclaims [][]string
+	// nspersistentvolumes      [][]string
+	// nsjobs                   [][]string
 }
+
 // key value pairs pods for resoueces and limits
-type pods struct {
-	podName string
+type nspods struct {
+	podName  string
 	poStatus string
-	podCPU  string
-	podMEM  string
+	podCPU   string
+	podMEM   string
 	poImages []string
 }
-// key value for services
-type services struct {
-	serviceName string
-	serviceType string
-	serviceTarget string
-	serviceTargetPort string
+
+type nsservices struct {
+	serviceName       string
+	serviceType       string
+	serviceTarget     string
+	serviceTargetname string
 }
+
 // key value for ingresses
-type ingresses struct {
-	ingressName string
-	ingressHost string
-	ingressPath string
-	ingressTarget string
+type nsingresses struct {
+	ingressName       string
+	ingressHost       string
+	ingressPath       string
+	ingressTarget     string
 	ingressTargetPort string
-	ingressesLBtype string
+	ingressesLBtype   string
 }
 
+var namespacesListDetailed []namespaceInfoDetailed
 
-func namespaceInfoDetailed(){
+func getnamespaceInfoDetailed() {
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
@@ -492,12 +496,12 @@ func namespaceInfoDetailed(){
 
 	namespaces, err := clientset.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		lof.Fatal(err)
+		log.Fatal(err)
 	}
 
 	for _, namespace := range namespaces.Items {
 		nsname := namespace.Name
-		pods , err := clientset.CoreV1().Pods(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		pods, err := clientset.CoreV1().Pods(namespace.Name).List(context.Background(), metav1.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -509,77 +513,138 @@ func namespaceInfoDetailed(){
 		if err != nil {
 			log.Fatal(err)
 		}
-		deployments, err := clientset.AppsV1().Deployments(namespace.Name).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		statefulsets, err := clientset.AppsV1().StatefulSets(namespace.Name).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		daemonsets, err := clientset.AppsV1().DaemonSets(namespace.Name).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		confimap, err := clientset.CoreV1().ConfigMaps(namespace.Name).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		secret, err := clientset.CoreV1().Secrets(namespace.Name).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		persistentvolumeclaims, err := clientset.CoreV1().PersistentVolumeClaims(namespace.Name).List(context.Background(), metav1.ListOptions{})
-		if err != nil {
-			log.Fatal(err)
-		}
+		// deployments, err := clientset.AppsV1().Deployments(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// statefulsets, err := clientset.AppsV1().StatefulSets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// daemonsets, err := clientset.AppsV1().DaemonSets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// confimap, err := clientset.CoreV1().ConfigMaps(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// secret, err := clientset.CoreV1().Secrets(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// persistentvolumeclaims, err := clientset.CoreV1().PersistentVolumeClaims(namespace.Name).List(context.Background(), metav1.ListOptions{})
+		// if err != nil {
+		// 	log.Fatal(err)
 
-		var podList []pods
-		var serviceList []services
-		var ingressList []ingresses
+		var podList []nspods
+		var serviceList []nsservices
+		var ingressList []nsingresses
 
 		for _, pod := range pods.Items {
 			podName := pod.Name
-			pod.Status := pod.Status
+
+			poStatus := pod.Status
+
 			podCPU := pod.Spec.Containers[0].Resources.Requests.Cpu().String()
+
 			podMEM := pod.Spec.Containers[0].Resources.Requests.Memory().String()
+
 			var podImages []string
 			for _, container := range pod.Spec.Containers {
-				podImages = append(podImages, container.Image.String())
+				podImages = append(podImages, container.Image)
 			}
-			podInfo := pods{
-				podName: podName,
-				poStatus: podStatus,
-				podCPU: podCPU,
-				podMEM: podMEM,
+			podInfo := nspods{
+				podName:  podName,
+				poStatus: poStatus.String(),
+				podCPU:   podCPU,
+				podMEM:   podMEM,
 				poImages: podImages,
 			}
-			podList = append(podList, podInfo)
 
-			svcname := services.Name
-			svcType := services.Type
-			svcTarget := services.Spec.Selector
-			svcTargetPort := services.Spec.Ports[0].TargetPort.String()
-			serviceInfo := services{
-				serviceName: svcname,
-				serviceType: svcType,
-				serviceTarget: svcTarget,
-				serviceTargetPort: svcTargetPort,
+			podList = append(podList, podInfo)
+		}
+
+		for _, service := range services.Items {
+			svcName := service.Name
+			svcType := service.Spec.Type
+			svcTarget := service.Spec.Ports[0].TargetPort.String()
+			svcTargetname := service.Spec.Ports[0].Name
+
+			serviceInfo := nsservices{
+				serviceName:       svcName,
+				serviceType:       string(svcType),
+				serviceTarget:     svcTarget,
+				serviceTargetname: svcTargetname,
 			}
 
 			serviceList = append(serviceList, serviceInfo)
 
-			
-			
-
-
 		}
 
+		for _, ingresses := range ingresses.Items {
+			ingname := ingresses.Name
+			inghost := ingresses.Spec.Rules[0].Host
+			ingpath := ingresses.Spec.Rules[0].HTTP.Paths[0].Path
+			ingtarget := ingresses.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Name
+			ingtargetport := ingresses.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number
+			inglbtype := ingresses.Spec.Rules[0].IngressRuleValue.HTTP.Paths[0].Backend.Service.Port.Name
 
+			ingressInfo := nsingresses{
+				ingressName:       ingname,
+				ingressHost:       inghost,
+				ingressPath:       ingpath,
+				ingressTarget:     ingtarget,
+				ingressTargetPort: string(ingtargetport),
+				ingressesLBtype:   inglbtype,
+			}
+			ingressList = append(ingressList, ingressInfo)
+		}
+
+		namespaceInfoDetailed := namespaceInfoDetailed{
+			namespaceName: nsname,
+			nspods:        podList,
+			nsservices:    serviceList,
+			nsingresses:   ingressList,
+		}
+
+		namespacesListDetailed = append(namespacesListDetailed, namespaceInfoDetailed)
 
 	}
+	for _, info := range namespacesListDetailed {
+		fmt.Println("┏━━" + info.namespaceName + "━━━")
+		fmt.Println("┃")
+		for _, pod := range info.nspods {
+			fmt.Println("┃ Pod Name: ", pod.podName)
+			fmt.Println("┃ Pod Status: ", pod.poStatus)
+			fmt.Println("┃ Pod CPU: ", pod.podCPU)
+			fmt.Println("┃ Pod Memory: ", pod.podMEM)
+			for _, image := range pod.poImages {
+				fmt.Println(" Pod Image: ", image)
+			}
+			fmt.Println("┃")
+			fmt.Println("┃")
+		}
+		for _, service := range info.nsservices {
+			fmt.Println("┃ Service Name: ", service.serviceName)
+			fmt.Println("┃ Service Type: ", service.serviceType)
+			fmt.Println("┃ Service Target: ", service.serviceTarget)
+			fmt.Println("┃ Service Target Port: ", service.serviceTargetname)
+			fmt.Println("┃")
+			fmt.Println("┃")
+		}
+		for _, ingress := range info.nsingresses {
+			fmt.Println("┃ Ingress Name: ", ingress.ingressName)
+			fmt.Println("┃ Ingress Host: ", ingress.ingressHost)
+			fmt.Println("┃ Ingress Path: ", ingress.ingressPath)
+			fmt.Println("┃ Ingress Target: ", ingress.ingressTarget)
+			fmt.Println("┃ Ingress Target Port: ", ingress.ingressTargetPort)
+			fmt.Println("┃ Ingress LB Type: ", ingress.ingressesLBtype)
+			fmt.Println("┃")
+			fmt.Println("┃")
+		}
 
-	
+		fmt.Println("┗━━━━━━ ")
+	}
 
 }
-
