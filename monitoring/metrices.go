@@ -43,10 +43,11 @@ type monitoring struct {
 var m *monitoring
 
 func Getinfo() {
+	m = &monitoring{}
 
 	// cpu usage for the cluster
 	// kubernetes client
-	config, err := rest.InClusterConfig()
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
 	}

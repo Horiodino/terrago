@@ -5,7 +5,6 @@ import (
 )
 
 func main() {
-
-	metrices.getinfo()
+	metrices.Getinfo()
 
 }
