@@ -105,6 +105,18 @@ func Getinfo() {
 
 }
 
+func Display() {
+	// display the stored info of Getinfo function that is stored in the struct
+	fmt.Println("CPU Usage: ", m.cpu)
+	fmt.Println("CPU Cores: ", m.cores)
+	fmt.Println("Nodes: ", m.nodes)
+	fmt.Println("Total Memory: ", m.totalmemory)
+	fmt.Println("Used Memory: ", m.usedmemory)
+	fmt.Println("Disk Usage: ", m.disk)
+	fmt.Println("Total Disk: ", m.totaldisk)
+
+}
+
 type NodeInfo struct {
 	Name   []string
 	Memory []float64
