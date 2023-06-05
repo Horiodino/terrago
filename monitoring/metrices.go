@@ -4,20 +4,22 @@ package monitoring
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	// Kubernetes API client libraries and packages
-	".mongodb.org/mongo-driver/mongo"go
-	"go.mongodb.org/mongo-driver/mongo/options"
+	// ".mongodb.org/mongo-driver/mongo"go
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
 
 	// using mongoDB
 
 	"log"
 	"strconv"
-	"time"
 )
 
 // aglobal struct for authorization client for kubernetes client so that DRY principle can be followed
@@ -40,7 +42,7 @@ type monitoring struct {
 
 var m *monitoring
 
-func getinfo() {
+func Getinfo() {
 
 	// cpu usage for the cluster
 	// kubernetes client
@@ -305,7 +307,8 @@ func clusterInfo() ([]resources, error) {
 
 	return resourcesList, nil
 }
-//works till here
+
+// works till here
 type namespacestruct struct {
 	namespaceName            string
 	nspods                   []string
@@ -439,7 +442,6 @@ func namespacesInfo() ([]namespacestruct, error) {
 
 	return namespacesList, nil
 }
-
 
 type namespaceInfoDetailed struct {
 	namespaceName            string
