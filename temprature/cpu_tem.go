@@ -1,4 +1,4 @@
-package temprature
+package monitoring
 
 import (
 	"fmt"

@@ -10,13 +10,12 @@ import (
 	// Kubernetes API client libraries and packages
 	// ".mongodb.org/mongo-driver/mongo"go
 
+	cpu_tem "https://github.com/Horiodino/terrago/monitoring/temprature"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
-	"cpu_tem "github.com/Horiodino/terrago/monitoring/temprature"
-
 
 	// using mongoDB
 
@@ -191,7 +190,7 @@ func cpu() ([]NodeInfo, error) {
 		// get the disk usage percentage for the nodes
 		diskUsagePercentage := float64(diskUsage) / float64(diskCapacity) * 100
 
-		cpuTemp, err := getCPUTemperature()
+		cpuTemp, err := cpu_tem.GetCPUTemperature()
 
 		// now append the data to the node struct
 
