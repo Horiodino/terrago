@@ -10,7 +10,7 @@ import (
 	// Kubernetes API client libraries and packages
 	// ".mongodb.org/mongo-driver/mongo"go
 
-	cpu_tem "https://github.com/Horiodino/terrago/monitoring/temprature"
+	cpu_tem "https://github.com/Horiodino/terrago/temprature"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
