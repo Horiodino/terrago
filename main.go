@@ -13,6 +13,6 @@ func main() {
 	// }
 	// fmt.Println(cpu)
 	// metrices.Cpu()
-	container.ContainerInfo()
+	container.Containermatricesinfo()
 
 }

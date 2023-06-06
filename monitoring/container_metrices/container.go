@@ -36,7 +36,7 @@ var ContainerInfo []containerMetrics
 
 var AllContainer int32
 
-func containermatricesinfo() {
+func Containermatricesinfo() {
 	config, err := clientcmd.BuildConfigFromFlags("", "/home/rajesh/.kube/config")
 	if err != nil {
 		log.Fatal(err)
