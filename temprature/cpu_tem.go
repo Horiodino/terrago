@@ -1,13 +1,9 @@
-package monitoring
+package temprature
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
-
-	"cpu_tem "github.com/Horiodino/terrago/monitoring/temprature"
-
 )
 
 func GetCPUTemperature() (float64, error) {
@@ -22,9 +18,6 @@ func GetCPUTemperature() (float64, error) {
 		return 0, err
 	}
 
-	temperature /= 1000.0 /
+	temperature /= 1000.0
 	return temperature, nil
 }
-
-
-
