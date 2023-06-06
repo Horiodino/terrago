@@ -129,7 +129,7 @@ type NodeInfo struct {
 var nodeInfoList []NodeInfo
 
 // cpu usage for the nodes
-func cpu() ([]NodeInfo, error) {
+func Cpu() ([]NodeInfo, error) {
 	// we will get the info regarding the cpu usage for the nodes
 	// we will use kubernetes API for this
 
