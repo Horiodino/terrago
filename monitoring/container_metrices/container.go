@@ -1,4 +1,4 @@
-package Containermonitoring
+package container_metrices
 
 import (
 	"context"

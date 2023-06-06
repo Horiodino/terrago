@@ -1,17 +1,18 @@
 package main
 
 import (
-	metrices "github.com/Horiodino/terrago/monitoring"
+	container "github.com/Horiodino/terrago/monitoring/container_metrices"
 )
 
 func main() {
-	metrices.Getinfo()
-	metrices.Display()
+	// metrices.Getinfo()
+	// metrices.Display()
 	// cpu, err := metrices.Cpu()
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
 	// fmt.Println(cpu)
-	metrices.Cpu()
+	// metrices.Cpu()
+	container.ContainerInfo()
 
 }
