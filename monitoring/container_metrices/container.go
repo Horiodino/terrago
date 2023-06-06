@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -37,7 +38,7 @@ var ContainerInfo []containerMetrics
 var AllContainer int32
 
 func Containermatricesinfo() {
-	config, err := clientcmd.BuildConfigFromFlags("", "/home/rajesh/.kube/config")
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
 	}
