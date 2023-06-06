@@ -6,5 +6,6 @@ import (
 
 func main() {
 	metrices.Getinfo()
+	metrices.Display()
 
 }

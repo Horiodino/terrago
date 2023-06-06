@@ -15,6 +15,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
+	"cpu_tem "github.com/Horiodino/terrago/monitoring/temprature"
+
 
 	// using mongoDB
 
@@ -118,10 +120,11 @@ func Display() {
 }
 
 type NodeInfo struct {
-	Name   []string
-	Memory []float64
-	CPU    []float64
-	Disk   []float64
+	Name    []string
+	Memory  []float64
+	CPU     []float64
+	Disk    []float64
+	CpuTemp []float64
 }
 
 var nodeInfoList []NodeInfo
@@ -188,13 +191,16 @@ func cpu() ([]NodeInfo, error) {
 		// get the disk usage percentage for the nodes
 		diskUsagePercentage := float64(diskUsage) / float64(diskCapacity) * 100
 
+		cpuTemp, err := getCPUTemperature()
+
 		// now append the data to the node struct
 
 		nodeInfo := NodeInfo{
-			Name:   []string{node.Name},
-			CPU:    []float64{cpuUsagePercentage},
-			Memory: []float64{memoryUsagePercentage},
-			Disk:   []float64{diskUsagePercentage},
+			Name:    []string{node.Name},
+			CPU:     []float64{cpuUsagePercentage},
+			Memory:  []float64{memoryUsagePercentage},
+			Disk:    []float64{diskUsagePercentage},
+			CpuTemp: []float64{cpuTemp},
 		}
 		nodeInfoList = append(nodeInfoList, nodeInfo)
 	}
