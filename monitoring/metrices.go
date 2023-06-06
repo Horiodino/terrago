@@ -13,7 +13,6 @@ import (
 	cpu_tem "github.com/Horiodino/terrago/temprature"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
 
@@ -40,6 +39,8 @@ type monitoring struct {
 	totaldisk   float64
 	billing     float64
 }
+
+var Nodes 
 
 var m *monitoring
 
@@ -73,6 +74,7 @@ func Getinfo() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	Node := nodes
 	var cpuCores int64
 	for _, node := range nodes.Items {
 		cpuCores += node.Status.Capacity.Cpu().Value()
@@ -134,7 +136,7 @@ func Cpu() ([]NodeInfo, error) {
 	// we will use kubernetes API for this
 
 	// creat the kubernetes client
-	config, err := rest.InClusterConfig()
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -191,6 +193,7 @@ func Cpu() ([]NodeInfo, error) {
 		diskUsagePercentage := float64(diskUsage) / float64(diskCapacity) * 100
 
 		cpuTemp, err := cpu_tem.GetCPUTemperature()
+		fmt.Println("working!!")
 
 		// now append the data to the node struct
 
@@ -201,10 +204,19 @@ func Cpu() ([]NodeInfo, error) {
 			Disk:    []float64{diskUsagePercentage},
 			CpuTemp: []float64{cpuTemp},
 		}
+
 		nodeInfoList = append(nodeInfoList, nodeInfo)
 	}
 
-	return nodeInfoList, nil
+	for _, node := range nodeInfoList {
+		fmt.Println("Node Name: ", node.Name)
+		fmt.Println("CPU Usage: ", node.CPU)
+		fmt.Println("Memory Usage: ", node.Memory)
+		fmt.Println("Disk Usage: ", node.Disk)
+		fmt.Println("CPU Temperature: ", node.CpuTemp)
+	}
+
+	return nodeInfoList, err
 
 }
 
