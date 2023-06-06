@@ -13,6 +13,5 @@ func main() {
 	// }
 	// fmt.Println(cpu)
 	metrices.Cpu()
-	
 
 }

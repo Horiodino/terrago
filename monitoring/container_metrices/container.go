@@ -10,40 +10,38 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/metrics/pkg/apis/metrics/v1beta1"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
-// defining a strunct to store the container metrics and all
 type containerMetrics struct {
 	// conatainer name of type var containerNames
-	cname                 []string
-	podName               []string
-	nsname                []string
-	node                  []string
-	cpuUsage              []float64
-	memoryUsage           []float64
-	diskIo                []float64
-	networkTx             []int
-	networkRx             []int
-	containerID           []string
-	containerImage        []string
-	containerStatus       []string
-	containerCreationTime []time.Time
-	containerStartTime    []time.Time
-	containerLabels       []string
+	cname          string
+	podName        string
+	nsname         string
+	node           string
+	requestecpu    string
+	limitscpu      string
+	requestememory string
+	limitsmemory   string
+	diskIo         string
+	networkTx      int
+	networkRx      int
+	containerImage string
+	// volumemounts   []string
 }
+
+var ContainerInfo []containerMetrics
 
 var AllContainer int32
 
 func containermatricesinfo() {
-	config, err := rest.InClusterConfig()
+	config, err := clientcmd.BuildConfigFromFlags("", "/home/rajesh/.kube/config")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// create the clientset
-	// here its taking the config which we created above
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		log.Fatal(err)
@@ -53,29 +51,49 @@ func containermatricesinfo() {
 	if err != nil {
 		panic(err)
 	}
-	//this for loop will iterate over all the pods
+
 	for _, pod := range pods.Items {
-		// this for loop will iterate over all the containers in the pod
 		for _, container := range pod.Spec.Containers {
-			containerMetrics := containerMetrics{
-				cname:    container.Name,
-				podName:  pod.Name,
-				nsname:   pod.Namespace,
-				node:     pod.Spec.NodeName,
-				cpuUsage: GetCpuUsage(container.Name, pod.Name, pod.Namespace),
-				// memoryUsage:           []float64{GetMemoryUses(container.Name, pod.Name, pod.Namespace)},
-				// diskIo:                []float64{cpu.GetDiskIo(container.Name, pod.Name, pod.Namespace)},
-				networkTx: []int{0},
-				networkRx: []int{0},
-				// containerID:           []string{container.ContainerID},
-				containerImage:        []string{container.Image},
-				containerStatus:       []string{string(pod.Status.Phase)},
-				containerCreationTime: []time.Time{pod.CreationTimestamp.Time},
-				containerStartTime:    []time.Time{pod.Status.StartTime.Time},
-				// containerLabels:       []string{pod.Labels.String()},
+			cname := container.Name
+			podName := pod.Name
+			nsname := pod.Namespace
+			node := pod.Spec.NodeName
+			cpu_request := container.Resources.Requests.Cpu()
+			cpu_limits := container.Resources.Limits.Cpu()
+			memory_request := container.Resources.Requests.Memory()
+			memory_limits := container.Resources.Limits.Memory()
+
+			containerimage := container.Image
+			// vmounts := container.VolumeMounts
+
+			fmt.Println("Container Name: ", cname)
+			fmt.Println("Pod Name: ", podName)
+			fmt.Println("Namespace Name: ", nsname)
+			fmt.Println("Node Name: ", node)
+			fmt.Println("Requested CPU: ", cpu_request)
+			fmt.Println("Limits CPU: ", cpu_limits)
+			fmt.Println("Requested Memory: ", memory_request)
+			fmt.Println("Limits Memory: ", memory_limits)
+
+			// fmt.Println("Disk IO: ", diskIo)
+
+			ContainerMetrics := containerMetrics{
+				cname:          cname,
+				podName:        podName,
+				nsname:         nsname,
+				node:           node,
+				requestecpu:    cpu_request.String(),
+				limitscpu:      cpu_limits.String(),
+				requestememory: memory_request.String(),
+				limitsmemory:   memory_limits.String(),
+				// diskIo:         diskIo,
+				containerImage: containerimage,
+				// volumemounts:   string(vmounts),
 			}
-			fmt.Println(containerMetrics)
+
+			ContainerInfo = append(ContainerInfo, ContainerMetrics)
 		}
+
 	}
 }
 
