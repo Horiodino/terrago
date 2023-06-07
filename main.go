@@ -15,5 +15,6 @@ func main() {
 	// fmt.Println(cpu)
 	// metrices.Cpu()
 	container.Containermatricesinfo()
+	alerts.DeploumentsFailure()
 
 }

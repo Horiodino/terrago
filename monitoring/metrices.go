@@ -562,7 +562,7 @@ type nssecret struct {
 	// isusedBy   string
 }
 
-var NamespacesListDetailed []namespaceInfoDetailed
+var namespacesListDetailed []namespaceInfoDetailed
 
 func getnamespaceInfoDetailed() {
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
