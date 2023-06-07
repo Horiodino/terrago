@@ -42,7 +42,7 @@ func DeploumentsFailure() {
 			fmt.Println("Deployment is not ready")
 		}
 
-		// image pull failure alert
+		// image pull failure alert TODO--------------------
 	}
 	pods, err := clientset.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -53,37 +53,79 @@ func DeploumentsFailure() {
 	for _, pod := range pods.Items {
 		fmt.Println("┏━━━━━━━━━━━━━ " + pod.Name + " ━━━━━━━━━━━━━━━━━━━━━━━┓")
 
-		// Print the name of the pod and the status of each container within the pod
-		// for _, containerStatus := range pod.Status.ContainerStatuses {
-		// 	fmt.Println("Pod Status: " + string(containerStatus.State.Waiting.Reason))
-		// }
-
 		create := pod.CreationTimestamp
 		current_time := time.Now()
+		fmt.Println("Created at: " + create.String())
 
 		age := current_time.Sub(create.Time).Minutes()
 
-		if age > 5 && pod.Status.Phase != "Running" {
+		fmt.Println("Age: ", age)
+
+		pod_restart := pod.Status.ContainerStatuses[0].RestartCount
+
+		if age > 2 && pod.Status.Phase == "Running" && pod_restart > 3 {
 
 			for _, containerStatus := range pod.Status.ContainerStatuses {
 				fmt.Println("Pod Status: " + string(containerStatus.State.Waiting.Reason))
 			}
 			fmt.Println("Pod is not running")
 
+			pod_ip := pod.Status.PodIP
+			fmt.Println("POD IP: " + pod_ip)
+
+			container_id := pod.Status.ContainerStatuses[0].ContainerID
+			fmt.Println("Container ID: " + container_id)
+
+			Image := pod.Spec.Containers[0].Image
+			fmt.Println("Image: " + Image)
+
+			State := pod.Status.ContainerStatuses[0].State
+			fmt.Println("State: " + string(State.Waiting.Reason))
+
+			restart_count := pod_restart
+			fmt.Println("Restart count: ", restart_count)
+
+			ready := pod.Status.ContainerStatuses[0].Ready
+			fmt.Println("Ready: ", ready)
+
+			labels := pod.Labels
+			fmt.Println("Labels: ", labels)
+
+			// controller := pod.OwnerReferences[0].Controller
+			// fmt.Println("Controller: ", controller)
+
 		}
+		fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
-		pod_restart := pod.Status.ContainerStatuses[0].RestartCount
-
-		if age > 5 && pod.Status.Phase == "Running" && pod_restart > 3 {
+		if age > 2 && pod.Status.Phase != "Ready" && pod_restart > 3 && pod.Status.Phase != "Running" {
 			for _, containerStatus := range pod.Status.ContainerStatuses {
 				fmt.Println("Pod Status: " + string(containerStatus.State.Waiting.Reason))
 			}
 
 			fmt.Println("Pod is restarting")
 
-			// get pod ip
 			pod_ip := pod.Status.PodIP
-			fmt.Println(pod_ip)
+			fmt.Println("POD IP: " + pod_ip)
+
+			container_id := pod.Status.ContainerStatuses[0].ContainerID
+			fmt.Println("Container ID: " + container_id)
+
+			Image := pod.Spec.Containers[0].Image
+			fmt.Println("Image: " + Image)
+
+			State := pod.Status.ContainerStatuses[0].State
+			fmt.Println("State: " + string(State.Waiting.Reason))
+
+			restart_count := pod_restart
+			fmt.Println("Restart count: ", restart_count)
+
+			ready := pod.Status.ContainerStatuses[0].Ready
+			fmt.Println("Ready: ", ready)
+
+			labels := pod.Labels
+			fmt.Println("Labels: ", labels)
+
+			//Detailed Reason   TODO ---------------------------
 
 		}
 
