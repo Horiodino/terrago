@@ -10,7 +10,6 @@ import (
 	// Kubernetes API client libraries and packages
 	// ".mongodb.org/mongo-driver/mongo"go
 
-	cpu_tem "github.com/Horiodino/terrago/temprature"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -39,8 +38,6 @@ type monitoring struct {
 	totaldisk   float64
 	billing     float64
 }
-
-var Nodes 
 
 var m *monitoring
 
@@ -74,7 +71,6 @@ func Getinfo() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	Node := nodes
 	var cpuCores int64
 	for _, node := range nodes.Items {
 		cpuCores += node.Status.Capacity.Cpu().Value()
@@ -192,17 +188,13 @@ func Cpu() ([]NodeInfo, error) {
 		// get the disk usage percentage for the nodes
 		diskUsagePercentage := float64(diskUsage) / float64(diskCapacity) * 100
 
-		cpuTemp, err := cpu_tem.GetCPUTemperature()
-		fmt.Println("working!!")
-
 		// now append the data to the node struct
 
 		nodeInfo := NodeInfo{
-			Name:    []string{node.Name},
-			CPU:     []float64{cpuUsagePercentage},
-			Memory:  []float64{memoryUsagePercentage},
-			Disk:    []float64{diskUsagePercentage},
-			CpuTemp: []float64{cpuTemp},
+			Name:   []string{node.Name},
+			CPU:    []float64{cpuUsagePercentage},
+			Memory: []float64{memoryUsagePercentage},
+			Disk:   []float64{diskUsagePercentage},
 		}
 
 		nodeInfoList = append(nodeInfoList, nodeInfo)
@@ -815,11 +807,11 @@ func getnamespaceInfoDetailed() {
 			nspersistentvolumeclaims: persistentvolumeclaimList,
 		}
 
-		namespacesListDetailed = append(namespacesListDetailed, namespaceInfoDetailed)
+		NamespacesListDetailed = append(NamespacesListDetailed, namespaceInfoDetailed)
 
 	}
 
-	for _, info := range namespacesListDetailed {
+	for _, info := range NamespacesListDetailed {
 		fmt.Println("┏━━" + info.namespaceName + "━━━")
 		// fmt.Println("┃")
 		// for _, pod := range info.nspods {

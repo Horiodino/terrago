@@ -2,7 +2,6 @@ package main
 
 import (
 	alerts "github.com/Horiodino/terrago/Alerts"
-	container "github.com/Horiodino/terrago/monitoring/container_metrices"
 )
 
 func main() {
@@ -14,7 +13,7 @@ func main() {
 	// }
 	// fmt.Println(cpu)
 	// metrices.Cpu()
-	container.Containermatricesinfo()
+	// container.Containermatricesinfo()
 	alerts.DeploumentsFailure()
 
 }
