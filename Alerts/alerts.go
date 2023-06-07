@@ -13,7 +13,24 @@ import (
 )
 
 type FailureStatus struct {
+	Pods []PodsFailure
 }
+
+type PodsFailure struct {
+	PodName string
+	Created string
+	Age     string
+	Status  string
+	IP      string
+	CID     string
+	Image   string
+	State   string
+	Restart string
+	Ready   bool
+	Labels  map[string]string
+}
+
+var FailureStatusSlice []FailureStatus
 
 func DeploumentsFailure() {
 
@@ -51,85 +68,210 @@ func DeploumentsFailure() {
 
 	// Print the names of all pods
 	for _, pod := range pods.Items {
-		fmt.Println("┏━━━━━━━━━━━━━ " + pod.Name + " ━━━━━━━━━━━━━━━━━━━━━━━┓")
 
 		create := pod.CreationTimestamp
 		current_time := time.Now()
-		fmt.Println("Created at: " + create.String())
 
 		age := current_time.Sub(create.Time).Minutes()
 
-		fmt.Println("Age: ", age)
-
 		pod_restart := pod.Status.ContainerStatuses[0].RestartCount
+
+		var PodsFailureSlice []PodsFailure
 
 		if age > 2 && pod.Status.Phase == "Running" && pod_restart > 3 {
 
-			for _, containerStatus := range pod.Status.ContainerStatuses {
-				fmt.Println("Pod Status: " + string(containerStatus.State.Waiting.Reason))
-			}
-			fmt.Println("Pod is not running")
-
 			pod_ip := pod.Status.PodIP
-			fmt.Println("POD IP: " + pod_ip)
 
 			container_id := pod.Status.ContainerStatuses[0].ContainerID
-			fmt.Println("Container ID: " + container_id)
 
 			Image := pod.Spec.Containers[0].Image
-			fmt.Println("Image: " + Image)
 
 			State := pod.Status.ContainerStatuses[0].State
-			fmt.Println("State: " + string(State.Waiting.Reason))
 
 			restart_count := pod_restart
-			fmt.Println("Restart count: ", restart_count)
 
 			ready := pod.Status.ContainerStatuses[0].Ready
-			fmt.Println("Ready: ", ready)
-
 			labels := pod.Labels
-			fmt.Println("Labels: ", labels)
 
-			// controller := pod.OwnerReferences[0].Controller
-			// fmt.Println("Controller: ", controller)
+			PodsFailure := PodsFailure{
+				PodName: pod.Name,
+				Created: create.String(),
+				Age:     fmt.Sprintf("%f", age),
+				Status:  string(pod.Status.Phase),
+				IP:      pod_ip,
+				CID:     container_id,
+				Image:   Image,
+				State:   string(State.Waiting.Reason),
+				Restart: fmt.Sprintf("%d", restart_count),
+				Ready:   ready,
+				Labels:  labels,
+			}
+
+			PodsFailureSlice = append(PodsFailureSlice, PodsFailure)
 
 		}
-		fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
 		if age > 2 && pod.Status.Phase != "Ready" && pod_restart > 3 && pod.Status.Phase != "Running" {
 			for _, containerStatus := range pod.Status.ContainerStatuses {
 				fmt.Println("Pod Status: " + string(containerStatus.State.Waiting.Reason))
 			}
-
-			fmt.Println("Pod is restarting")
-
 			pod_ip := pod.Status.PodIP
-			fmt.Println("POD IP: " + pod_ip)
 
 			container_id := pod.Status.ContainerStatuses[0].ContainerID
-			fmt.Println("Container ID: " + container_id)
 
 			Image := pod.Spec.Containers[0].Image
-			fmt.Println("Image: " + Image)
 
 			State := pod.Status.ContainerStatuses[0].State
-			fmt.Println("State: " + string(State.Waiting.Reason))
 
 			restart_count := pod_restart
-			fmt.Println("Restart count: ", restart_count)
 
 			ready := pod.Status.ContainerStatuses[0].Ready
-			fmt.Println("Ready: ", ready)
 
 			labels := pod.Labels
-			fmt.Println("Labels: ", labels)
 
-			//Detailed Reason   TODO ---------------------------
+			PodsFailure := PodsFailure{
+				PodName: pod.Name,
+				Created: create.String(),
+				Age:     fmt.Sprintf("%f", age),
+				Status:  string(pod.Status.Phase),
+				IP:      pod_ip,
+				CID:     container_id,
+				Image:   Image,
+				State:   string(State.Waiting.Reason),
+				Restart: fmt.Sprintf("%d", restart_count),
+				Ready:   ready,
+				Labels:  labels,
+			}
+
+			PodsFailureSlice = append(PodsFailureSlice, PodsFailure)
 
 		}
+		FailureStatus := FailureStatus{
+			Pods: PodsFailureSlice,
+		}
 
-		fmt.Println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
+		FailureStatusSlice = append(FailureStatusSlice, FailureStatus)
 	}
+	for _, FailureStatus := range FailureStatusSlice {
+		for _, PodsFailure := range FailureStatus.Pods {
+			fmt.Println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+			fmt.Println("Pod Name: " + PodsFailure.PodName)
+			fmt.Println("Created: " + PodsFailure.Created)
+			fmt.Println("Age: " + PodsFailure.Age)
+			fmt.Println("Status: " + PodsFailure.Status)
+			fmt.Println("IP: " + PodsFailure.IP)
+			fmt.Println("CID: " + PodsFailure.CID)
+			fmt.Println("Image: " + PodsFailure.Image)
+			fmt.Println("State: " + PodsFailure.State)
+			fmt.Println("Restart: " + PodsFailure.Restart)
+			fmt.Println("Ready: " + fmt.Sprintf("%t", PodsFailure.Ready))
+			fmt.Println("Labels: " + fmt.Sprintf("%v", PodsFailure.Labels))
+			fmt.Println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+		}
+	}
+
+	SendFailureAlert()
+}
+
+type CpuStatus struct {
+	Pods  []PodsCpu
+	Nodes []NodesCpu
+}
+
+type PodsCpu struct {
+	PodName string
+	message string
+}
+type NodesCpu struct {
+	NodeName string
+}
+
+var CpuStatusSlice []CpuStatus
+
+func Cpu_exceed() {
+
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
+	if err != nil {
+		log.Fatal(err)
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pods, err := clientset.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var PodsCpuSlice []PodsCpu
+	for _, pod := range pods.Items {
+
+		pod_cpu := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
+		pod_cpu_limit := pod.Spec.Containers[0].Resources.Limits.Cpu().MilliValue()
+
+		if pod_cpu > pod_cpu_limit {
+
+			PodsCpu := PodsCpu{
+				PodName: pod.Name,
+				message: "Pod CPU exceed",
+			}
+
+			PodsCpuSlice = append(PodsCpuSlice, PodsCpu)
+		}
+
+	}
+
+	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var NodesCpuSlice []NodesCpu
+
+	for _, node := range nodes.Items {
+
+		node_cpu := node.Status.Allocatable.Cpu().MilliValue()
+		node_cpu_limit := node.Status.Capacity.Cpu().MilliValue()
+
+		if node_cpu > node_cpu_limit {
+
+			NodesCpu := NodesCpu{
+				NodeName: node.Name,
+			}
+
+			NodesCpuSlice = append(NodesCpuSlice, NodesCpu)
+		}
+	}
+
+	CpuStatus := CpuStatus{
+		Pods:  PodsCpuSlice,
+		Nodes: NodesCpuSlice,
+	}
+
+	CpuStatusSlice = append(CpuStatusSlice, CpuStatus)
+
+	for _, CpuStatus := range CpuStatusSlice {
+		for _, PodsCpu := range CpuStatus.Pods {
+			fmt.Println("┏━━━━━━━━━━━")
+			fmt.Println("Pod Name: " + PodsCpu.PodName)
+			fmt.Println("Message: " + PodsCpu.message)
+			fmt.Println("┗━━━━━━━━━━━")
+		}
+		for _, NodesCpu := range CpuStatus.Nodes {
+			fmt.Println("┏━━━━━━━━━━━")
+			fmt.Println("Node Name: " + NodesCpu.NodeName)
+			fmt.Println("Message: Node CPU exceed")
+			fmt.Println("┗━━━━━━━━━━━")
+		}
+	}
+
+}
+
+func Memory_exceed() {
+
+	// memory exceed alert TODO--------------------
+}
+
+func SendFailureAlert() {
 
 }

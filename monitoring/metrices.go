@@ -230,7 +230,7 @@ type resources struct {
 var resourcesList []resources
 
 // we will get the info regarding the cluster and its components
-func clusterInfo() ([]resources, error) {
+func ClusterInfo() ([]resources, error) {
 
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
@@ -348,7 +348,7 @@ type namespacestruct struct {
 
 var namespacesList []namespacestruct
 
-func namespacesInfo() ([]namespacestruct, error) {
+func NamespacesInfo() ([]namespacestruct, error) {
 	// we will get the info for a particular namespace like
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
@@ -363,7 +363,6 @@ func namespacesInfo() ([]namespacestruct, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	i := 1
 
 	for _, namespace := range namespaces.Items {
 
@@ -418,7 +417,6 @@ func namespacesInfo() ([]namespacestruct, error) {
 			log.Fatal(err)
 		}
 
-		fmt.Println("working", i)
 		jobs, err := clientset.BatchV1().Jobs(namespace.Name).List(context.Background(), metav1.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
@@ -440,25 +438,25 @@ func namespacesInfo() ([]namespacestruct, error) {
 		}
 
 		namespacesList = append(namespacesList, namespaceInfo)
-		for _, namespace := range namespacesList {
-			fmt.Println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
-			fmt.Println("┃ Namespace Name: ", namespace.namespaceName)
-			fmt.Println("┃ Pods: ", namespace.nspods)
-			fmt.Println("┃ Services: ", namespace.nsservices)
-			fmt.Println("┃ Ingresses: ", namespace.nsingresses)
-			fmt.Println("┃ Deployments: ", namespace.nsdeployments)
-			fmt.Println("┃ Statefulsets: ", namespace.nsstatefulsets)
-			fmt.Println("┃ Daemonsets: ", namespace.nsdaemonsets)
-			fmt.Println("┃ Configmaps: ", namespace.nsconfimap)
-			fmt.Println("┃ Secrets: ", namespace.nssecret)
-			fmt.Println("┃ Persistent Volume Claims: ", namespace.nspersistentvolumeclaims)
-			fmt.Println("┃ Persistent Volumes: ", namespace.nspersistentvolumes)
-			fmt.Println("┃ Jobs: ", namespace.nsjobs)
-			fmt.Println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
-			fmt.Println("")
-			fmt.Println("")
+	}
 
-		}
+	for _, namespace := range namespacesList {
+		fmt.Println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
+		fmt.Println("┃ Namespace Name: ", namespace.namespaceName)
+		fmt.Println("┃ Pods: ", namespace.nspods)
+		fmt.Println("┃ Services: ", namespace.nsservices)
+		fmt.Println("┃ Ingresses: ", namespace.nsingresses)
+		fmt.Println("┃ Deployments: ", namespace.nsdeployments)
+		fmt.Println("┃ Statefulsets: ", namespace.nsstatefulsets)
+		fmt.Println("┃ Daemonsets: ", namespace.nsdaemonsets)
+		fmt.Println("┃ Configmaps: ", namespace.nsconfimap)
+		fmt.Println("┃ Secrets: ", namespace.nssecret)
+		fmt.Println("┃ Persistent Volume Claims: ", namespace.nspersistentvolumeclaims)
+		fmt.Println("┃ Persistent Volumes: ", namespace.nspersistentvolumes)
+		fmt.Println("┃ Jobs: ", namespace.nsjobs)
+		fmt.Println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
+		fmt.Println("")
+		fmt.Println("")
 
 	}
 
@@ -556,7 +554,7 @@ type nssecret struct {
 
 var NamespacesListDetailed []namespaceInfoDetailed
 
-func getnamespaceInfoDetailed() {
+func GetnamespaceInfoDetailed() {
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
@@ -813,7 +811,7 @@ func getnamespaceInfoDetailed() {
 
 	for _, info := range NamespacesListDetailed {
 		fmt.Println("┏━━" + info.namespaceName + "━━━")
-		// fmt.Println("┃")
+		fmt.Println("┃")
 		// for _, pod := range info.nspods {
 		// 	fmt.Println("┃ Pod Name: ", pod.podName)
 		// 	fmt.Println("┃ Pod Status: ", pod.poStatus)
@@ -825,14 +823,14 @@ func getnamespaceInfoDetailed() {
 		// 	fmt.Println("┃")
 		// 	fmt.Println("┃")
 		// }
-		// for _, service := range info.nsservices {
-		// 	fmt.Println("┃ Service Name: ", service.serviceName)
-		// 	fmt.Println("┃ Service Type: ", service.serviceType)
-		// 	fmt.Println("┃ Service Target: ", service.serviceTarget)
-		// 	fmt.Println("┃ Service Target Port: ", service.serviceTargetname)
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
+		for _, service := range info.nsservices {
+			fmt.Println("┃ Service Name: ", service.serviceName)
+			fmt.Println("┃ Service Type: ", service.serviceType)
+			fmt.Println("┃ Service Target: ", service.serviceTarget)
+			fmt.Println("┃ Service Target Port: ", service.serviceTargetname)
+			fmt.Println("┃")
+			fmt.Println("┃")
+		}
 		// for _, ingress := range info.nsingresses {
 		// 	fmt.Println("┃ Ingress Name: ", ingress.ingressName)
 		// 	fmt.Println("┃ Ingress Host: ", ingress.ingressHost)
@@ -901,16 +899,16 @@ func getnamespaceInfoDetailed() {
 		// 	fmt.Println("┃")
 		// }
 
-		for _, pvc := range info.nspersistentvolumeclaims {
-			fmt.Println("┃ PVC Name: ", pvc.pvc_Name)
-			fmt.Println("┃ PVC Labels: ", pvc.pvc_Labels)
-			fmt.Println("┃ PVC Status: ", pvc.pvc_tatus)
-			fmt.Println("┃ PVC Volume: ", pvc.pvc_Volume)
-			fmt.Println("┃ PVC Size: ", pvc.pvc_Size)
-			fmt.Println("┃ PVC Access Mode: ", pvc.pvc_AcessMode)
-			fmt.Println("┃")
-			fmt.Println("┃")
-		}
+		// for _, pvc := range info.nspersistentvolumeclaims {
+		// 	fmt.Println("┃ PVC Name: ", pvc.pvc_Name)
+		// 	fmt.Println("┃ PVC Labels: ", pvc.pvc_Labels)
+		// 	fmt.Println("┃ PVC Status: ", pvc.pvc_tatus)
+		// 	fmt.Println("┃ PVC Volume: ", pvc.pvc_Volume)
+		// 	fmt.Println("┃ PVC Size: ", pvc.pvc_Size)
+		// 	fmt.Println("┃ PVC Access Mode: ", pvc.pvc_AcessMode)
+		// 	fmt.Println("┃")
+		// 	fmt.Println("┃")
+		// }
 
 		fmt.Println("┗━━━━━━ ")
 	}

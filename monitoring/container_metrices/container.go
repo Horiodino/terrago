@@ -27,10 +27,10 @@ type containerMetrics struct {
 	requestememory string
 	limitsmemory   string
 	diskIo         string
-	networkTx      int
-	networkRx      int
+	// networkTx      int
+	// networkRx      int
 	containerImage string
-	volumemounts   []string
+	// volumemounts   []string
 }
 
 var ContainerInfo []containerMetrics
@@ -85,6 +85,21 @@ func Containermatricesinfo() {
 			ContainerInfo = append(ContainerInfo, ContainerMetrics)
 		}
 
+	}
+
+	for _, container := range ContainerInfo {
+		fmt.Println("Container Name: ", container.cname)
+		fmt.Println("Pod Name: ", container.podName)
+		fmt.Println("Namespace Name: ", container.nsname)
+		fmt.Println("Node Name: ", container.node)
+		fmt.Println("Requested CPU: ", container.requestecpu)
+		fmt.Println("Limits CPU: ", container.limitscpu)
+		fmt.Println("Requested Memory: ", container.requestememory)
+		fmt.Println("Limits Memory: ", container.limitsmemory)
+		fmt.Println("Disk IO: ", container.diskIo)
+		fmt.Println("Container Image: ", container.containerImage)
+		// fmt.Println("Volume Mounts: ", container.volumemounts)
+		fmt.Println("=====================================")
 	}
 }
 
