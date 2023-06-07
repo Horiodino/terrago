@@ -7,14 +7,12 @@ import (
 	"os"
 	"time"
 
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 type FailureStatus struct {
-	Deployment string
 }
 
 func DeploumentsFailure() {
@@ -40,55 +38,56 @@ func DeploumentsFailure() {
 		current_time := time.Now()
 
 		if deployment.Status.Replicas != deployment.Status.ReadyReplicas && current_time.Sub(created.Time).Minutes() > 5 {
-			// send alert
-			log.Println("Deployment is not ready")
+
+			fmt.Println("Deployment is not ready")
 		}
 
 		// image pull failure alert
 	}
-	Pods, err := clientset.CoreV1().Pods(" ").List(context.Background(), metav1.ListOptions{})
+	pods, err := clientset.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, pod := range Pods.Items {
+	// Print the names of all pods
+	for _, pod := range pods.Items {
+		fmt.Println("┏━━━━━━━━━━━━━ " + pod.Name + " ━━━━━━━━━━━━━━━━━━━━━━━┓")
 
-		// get pod start time
-		created := pod.CreationTimestamp
+		// Print the name of the pod and the status of each container within the pod
+		// for _, containerStatus := range pod.Status.ContainerStatuses {
+		// 	fmt.Println("Pod Status: " + string(containerStatus.State.Waiting.Reason))
+		// }
+
+		create := pod.CreationTimestamp
 		current_time := time.Now()
 
-		pod_age := current_time.Sub(created.Time).Minutes()
+		age := current_time.Sub(create.Time).Minutes()
 
-		// get pod restart count
-		restart_count := pod.Status.ContainerStatuses[0].RestartCount
+		if age > 5 && pod.Status.Phase != "Running" {
 
-		pod_status := pod.Status.Phase
+			for _, containerStatus := range pod.Status.ContainerStatuses {
+				fmt.Println("Pod Status: " + string(containerStatus.State.Waiting.Reason))
+			}
+			fmt.Println("Pod is not running")
 
-		if pod_status == "waiting" && pod_age > 2 && restart_count > 2 {
-			// send alert
-			fmt.Println("Pod is in CrashLoopBackOff state")
 		}
 
-		if pod_status == "Failed" && pod_age > 2 && restart_count > 2 {
-			// send alert
-			fmt.Println("Pod is in Failed state")
+		pod_restart := pod.Status.ContainerStatuses[0].RestartCount
+
+		if age > 5 && pod.Status.Phase == "Running" && pod_restart > 3 {
+			for _, containerStatus := range pod.Status.ContainerStatuses {
+				fmt.Println("Pod Status: " + string(containerStatus.State.Waiting.Reason))
+			}
+
+			fmt.Println("Pod is restarting")
+
+			// get pod ip
+			pod_ip := pod.Status.PodIP
+			fmt.Println(pod_ip)
+
 		}
 
-		if pod_status == "Pending" && pod_age > 2 && restart_count > 2 {
-			// send alert
-			fmt.Println("Pod is in Pending state")
-		}
-
-		// now get the logs of the pod
-
-		podLogs, err := clientset.CoreV1().Pods(pod.Name).GetLogs("", &v1.PodLogOptions{}).Stream(context.Background())
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		fmt.Println(podLogs)
+		fmt.Println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
 	}
-
-	fmt.Println("Alerts sent")
 
 }
