@@ -30,7 +30,7 @@ type containerMetrics struct {
 	networkTx      int
 	networkRx      int
 	containerImage string
-	// volumemounts   []string
+	volumemounts   []string
 }
 
 var ContainerInfo []containerMetrics
@@ -63,20 +63,10 @@ func Containermatricesinfo() {
 			cpu_limits := container.Resources.Limits.Cpu()
 			memory_request := container.Resources.Requests.Memory()
 			memory_limits := container.Resources.Limits.Memory()
+			diskIo := container.Resources.Requests.StorageEphemeral().String()
 
 			containerimage := container.Image
 			// vmounts := container.VolumeMounts
-
-			fmt.Println("Container Name: ", cname)
-			fmt.Println("Pod Name: ", podName)
-			fmt.Println("Namespace Name: ", nsname)
-			fmt.Println("Node Name: ", node)
-			fmt.Println("Requested CPU: ", cpu_request)
-			fmt.Println("Limits CPU: ", cpu_limits)
-			fmt.Println("Requested Memory: ", memory_request)
-			fmt.Println("Limits Memory: ", memory_limits)
-
-			// fmt.Println("Disk IO: ", diskIo)
 
 			ContainerMetrics := containerMetrics{
 				cname:          cname,
@@ -87,9 +77,9 @@ func Containermatricesinfo() {
 				limitscpu:      cpu_limits.String(),
 				requestememory: memory_request.String(),
 				limitsmemory:   memory_limits.String(),
-				// diskIo:         diskIo,
+				diskIo:         diskIo,
 				containerImage: containerimage,
-				// volumemounts:   string(vmounts),
+				// volumemounts:   vmounts,
 			}
 
 			ContainerInfo = append(ContainerInfo, ContainerMetrics)
