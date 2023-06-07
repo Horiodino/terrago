@@ -2,6 +2,7 @@ package Alerts
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -45,8 +46,7 @@ func DeploumentsFailure() {
 
 		// image pull failure alert
 	}
-
-	Pods, err := clientset.CoreV1().Pods("").List(context.Background(), metav1.ListOptions{})
+	Pods, err := clientset.CoreV1().Pods(" ").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,19 +64,19 @@ func DeploumentsFailure() {
 
 		pod_status := pod.Status.Phase
 
-		if pod_status == "CrashLoopBackOff" && pod_age > 2 && restart_count > 2 {
+		if pod_status == "waiting" && pod_age > 2 && restart_count > 2 {
 			// send alert
-			log.Println("Pod is in CrashLoopBackOff state")
+			fmt.Println("Pod is in CrashLoopBackOff state")
 		}
 
 		if pod_status == "Failed" && pod_age > 2 && restart_count > 2 {
 			// send alert
-			log.Println("Pod is in Failed state")
+			fmt.Println("Pod is in Failed state")
 		}
 
 		if pod_status == "Pending" && pod_age > 2 && restart_count > 2 {
 			// send alert
-			log.Println("Pod is in Pending state")
+			fmt.Println("Pod is in Pending state")
 		}
 
 		// now get the logs of the pod
@@ -86,7 +86,9 @@ func DeploumentsFailure() {
 			log.Fatal(err)
 		}
 
-		log.Println(podLogs)
+		fmt.Println(podLogs)
 	}
+
+	fmt.Println("Alerts sent")
 
 }
