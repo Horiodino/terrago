@@ -2,6 +2,7 @@ package Alerts
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -39,6 +40,6 @@ func DeploumentsFailure() {
 		}
 	}
 
-	metrices.NamespacesListDetailed()
+	fmt.Printf("metrices.NamespacesListDetailed: %v\n", metrices.NamespacesListDetailed)
 
 }
