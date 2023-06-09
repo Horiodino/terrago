@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"honnef.co/go/tools/config"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -269,9 +270,46 @@ func Cpu_exceed() {
 
 func Memory_exceed() {
 
-	// memory exceed alert TODO--------------------
-}
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-func SendFailureAlert() {
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pods, err := clientset.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, pod := range pods.Items {
+
+		pod_memory := pod.Spec.Containers[0].Resources.Requests.Memory().Value()
+		pod_memory_limit := pod.Spec.Containers[0].Resources.Limits.Memory().Value()
+
+		if pod_memory > pod_memory_limit {
+
+			fmt.Println("Pod Memory exceed")
+		}
+	}
+
+	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, node := range nodes.Items {
+
+		node_memory := node.Status.Allocatable.Memory().Value()
+		node_memory_limit := node.Status.Capacity.Memory().Value()
+
+		if node_memory > node_memory_limit {
+
+			fmt.Println("Node Memory exceed")
+		}
+	}
 
 }
