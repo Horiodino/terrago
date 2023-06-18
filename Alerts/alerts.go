@@ -227,7 +227,6 @@ type ContainerCpu struct {
 
 var CpuStatusSlice []CpuStatus
 
-
 func Cpu_exceed() {
 
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
@@ -263,5 +262,53 @@ func Cpu_exceed() {
 
 		}
 	}
+	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var NodesCpuSlice []NodesCpu
+
+	for _, node := range nodes.Items {
+
+		node_cpu := node.Status.Allocatable.Cpu().MilliValue()
+		node_cpu_limit := node.Status.Capacity.Cpu().MilliValue()
+
+		if node_cpu > node_cpu_limit {
+
+			NodesCpu := NodesCpu{
+				NodeName: node.Name,
+			}
+
+			NodesCpuSlice = append(NodesCpuSlice, NodesCpu)
+		}
+	}
+
+	CpuStatus := CpuStatus{
+
+		Containerstat: ContainerCpu_Slice,
+		Nodestat:      NodesCpuSlice,
+	}
+
+	CpuStatusSlice = append(CpuStatusSlice, CpuStatus)
+
+	for _, CpuStatus := range CpuStatusSlice {
+		for _, PodsCpu := range CpuStatus.Containerstat {
+			fmt.Println("┏━━━━━━━━━━━")
+			fmt.Println("Pod Name: " + PodsCpu.ContainerName)
+			fmt.Println("Message: " + PodsCpu.message)
+			fmt.Println("CPU Request: " + fmt.Sprintf("%d", PodsCpu.Cpurequest))
+			fmt.Println("CPU Limit: " + fmt.Sprintf("%d", PodsCpu.Cpulimit))
+			fmt.Println("┗━━━━━━━━━━━")
+		}
+		for _, NodesCpu := range CpuStatus.Nodestat {
+			fmt.Println("┏━━━━━━━━━━━")
+			fmt.Println("Node Name: " + NodesCpu.NodeName)
+			fmt.Println("Message: Node CPU exceed")
+			fmt.Println("┗━━━━━━━━━━━")
+		}
+	}
+
+}
 
 // Horizontal pod autoscaling
