@@ -209,4 +209,22 @@ func PodFailure() {
 
 // ---------------------------------------------------------------------------------------------------------------
 
+type CpuStatus struct {
+	Containerstat []ContainerCpu
+	Nodestat      []NodesCpu
+}
+
+type NodesCpu struct {
+	NodeName string
+	CpuUsage string
+}
+type ContainerCpu struct {
+	ContainerName string
+	message       string
+	Cpurequest    int64
+	Cpulimit      int64
+}
+
+var CpuStatusSlice []CpuStatus
+
 // Horizontal pod autoscaling
