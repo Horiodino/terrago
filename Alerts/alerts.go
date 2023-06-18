@@ -227,4 +227,21 @@ type ContainerCpu struct {
 
 var CpuStatusSlice []CpuStatus
 
+
+func Cpu_exceed() {
+
+	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
+	if err != nil {
+		log.Fatal(err)
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pods, err := clientset.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 // Horizontal pod autoscaling
