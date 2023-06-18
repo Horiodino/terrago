@@ -243,5 +243,25 @@ func Cpu_exceed() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	var ContainerCpu_Slice []ContainerCpu
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			containername := container.Name
+			container_cpu_request := container.Resources.Requests.Cpu().MilliValue()
+			container_cpu_limit := container.Resources.Limits.Cpu().MilliValue()
+
+			if container_cpu_request > container_cpu_limit {
+				ContainerCpu := ContainerCpu{
+					ContainerName: containername,
+					message:       "Container CPU exceed",
+					Cpurequest:    container_cpu_request,
+					Cpulimit:      container_cpu_limit,
+				}
+
+				ContainerCpu_Slice = append(ContainerCpu_Slice, ContainerCpu)
+			}
+
+		}
+	}
 
 // Horizontal pod autoscaling
