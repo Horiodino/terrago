@@ -32,9 +32,8 @@ type PodsFailure struct {
 
 var FailureStatusSlice []FailureStatus
 
-func DeploumentsFailure() {
+func PodFailure() {
 
-	// image pull failure
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
@@ -44,23 +43,6 @@ func DeploumentsFailure() {
 		log.Fatal(err)
 	}
 
-	Deployments, err := clientset.AppsV1().Deployments("").List(context.Background(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, deployment := range Deployments.Items {
-
-		created := deployment.CreationTimestamp
-		current_time := time.Now()
-
-		if deployment.Status.Replicas != deployment.Status.ReadyReplicas && current_time.Sub(created.Time).Minutes() > 5 {
-
-			fmt.Println("Deployment is not ready")
-		}
-
-		// image pull failure alert TODO--------------------
-	}
 	pods, err := clientset.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -205,161 +187,26 @@ func DeploumentsFailure() {
 	SendFailureAlert()
 }
 
-//---------------------------------------------------------------------------------------------------------------
-// type CpuStatus struct {
-// 	Pods  []PodsCpu
-// 	Nodes []NodesCpu
-// }
+/*
+	Deployments, err := clientset.AppsV1().Deployments("").List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// type PodsCpu struct {
-// 	PodName string
-// 	message string
-// }
-// type NodesCpu struct {
-// 	NodeName string
-// }
+	for _, deployment := range Deployments.Items {
 
-// var CpuStatusSlice []CpuStatus
+		created := deployment.CreationTimestamp
+		current_time := time.Now()
 
-// func Cpu_exceed() {
+		if deployment.Status.Replicas != deployment.Status.ReadyReplicas && current_time.Sub(created.Time).Minutes() > 5 {
 
-// 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	clientset, err := kubernetes.NewForConfig(config)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+			fmt.Println("Deployment is not ready")
+		}
 
-// 	pods, err := clientset.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	var PodsCpuSlice []PodsCpu
-// 	for _, pod := range pods.Items {
+		// image pull failure alert TODO--------------------
+	}
+*/
 
-// 		pod_cpu := pod.Spec.Containers[0].Resources.Requests.Cpu().MilliValue()
-// 		pod_cpu_limit := pod.Spec.Containers[0].Resources.Limits.Cpu().MilliValue()
-
-// 		if pod_cpu > pod_cpu_limit {
-
-// 			PodsCpu := PodsCpu{
-// 				PodName: pod.Name,
-// 				message: "Pod CPU exceed",
-// 			}
-
-// 			PodsCpuSlice = append(PodsCpuSlice, PodsCpu)
-// 		}
-
-// 	}
-
-// 	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	var NodesCpuSlice []NodesCpu
-
-// 	for _, node := range nodes.Items {
-
-// 		node_cpu := node.Status.Allocatable.Cpu().MilliValue()
-// 		node_cpu_limit := node.Status.Capacity.Cpu().MilliValue()
-
-// 		if node_cpu > node_cpu_limit {
-
-// 			NodesCpu := NodesCpu{
-// 				NodeName: node.Name,
-// 			}
-
-// 			NodesCpuSlice = append(NodesCpuSlice, NodesCpu)
-// 		}
-// 	}
-
-// 	CpuStatus := CpuStatus{
-// 		Pods:  PodsCpuSlice,
-// 		Nodes: NodesCpuSlice,
-// 	}
-
-// 	CpuStatusSlice = append(CpuStatusSlice, CpuStatus)
-
-// 	for _, CpuStatus := range CpuStatusSlice {
-// 		for _, PodsCpu := range CpuStatus.Pods {
-// 			fmt.Println("┏━━━━━━━━━━━")
-// 			fmt.Println("Pod Name: " + PodsCpu.PodName)
-// 			fmt.Println("Message: " + PodsCpu.message)
-// 			fmt.Println("┗━━━━━━━━━━━")
-// 		}
-// 		for _, NodesCpu := range CpuStatus.Nodes {
-// 			fmt.Println("┏━━━━━━━━━━━")
-// 			fmt.Println("Node Name: " + NodesCpu.NodeName)
-// 			fmt.Println("Message: Node CPU exceed")
-// 			fmt.Println("┗━━━━━━━━━━━")
-// 		}
-// 	}
-
-// }
-
-// func Memory_exceed() {
-
-// 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	clientset, err := kubernetes.NewForConfig(config)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	pods, err := clientset.CoreV1().Pods("default").List(context.Background(), metav1.ListOptions{})
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	for _, pod := range pods.Items {
-
-// 		pod_memory := pod.Spec.Containers[0].Resources.Requests.Memory().Value()
-// 		pod_memory_limit := pod.Spec.Containers[0].Resources.Limits.Memory().Value()
-
-// 		if pod_memory > pod_memory_limit {
-
-// 			fmt.Println("Pod Memory exceed")
-// 			Getlogs("pod", pod.Name, "default", pod.Spec.Containers[0].Name)
-
-// 		}
-// 	}
-
-// 	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	for _, node := range nodes.Items {
-
-// 		node_memory := node.Status.Allocatable.Memory().Value()
-// 		node_memory_limit := node.Status.Capacity.Memory().Value()
-
-// 		if node_memory > node_memory_limit {
-
-// 			fmt.Println("Node Memory exceed")
-// 		}
-// 	}
-
-// }
+// ---------------------------------------------------------------------------------------------------------------
 
 // Horizontal pod autoscaling
-
-// func HPA() {
-// this func for horizontal pod autoscaling that will send alerts when the pods autoscaling
-
-// config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
-// if err != nil {
-// 	log.Fatal(err)
-// }
-
-// clientset, err := kubernetes.NewForConfig(config)
-// if err != nil {
-// 	log.Fatal(err)
-// }
-// }
