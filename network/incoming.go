@@ -93,3 +93,34 @@ func Outbound_Traffic() {
 	fmt.Println("Total packets arrived:", Total_Outgoing_Packets)
 
 }
+
+func DeepPacketInspection() {
+	// here we will get all the info regardin the packet like the source and destination ip and port and the protocol used
+	// and also the data that is being sent and recieved.
+
+	iface := "wlo1"
+	handle, err := pcap.OpenLive(iface, 1600, true, pcap.BlockForever)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	filter := "inbound"
+
+	// now implemetn the logic for deep packet inspection
+	// first get the packet and then get the data from the packet and then check the data for any malicious content
+
+	err = handle.SetBPFFilter(filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// get the packet sorce info who is sending the packet and who is recieving the packet
+
+	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+
+	for packet := range packetSource.Packets() {
+		// fmt.Println(packet)
+		// this packet.NetworkLayer().NetworkFlow() will give the source and destination ip and port
+		fmt.Printf("Sender :: %s  :: Reciver", packet.NetworkLayer().NetworkFlow())
+
+}

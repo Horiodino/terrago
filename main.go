@@ -16,8 +16,9 @@ func main() {
 	// metrices.Display()
 	// network.Nic_info()
 
-	network.IncomingTraffic()
+	// network.IncomingTraffic()
 	// network.Outbound_Traffic()
+	network.DeepPacketInspection()
 
 	// alerts.PodFailure()
 
