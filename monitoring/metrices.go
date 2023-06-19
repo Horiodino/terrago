@@ -27,22 +27,22 @@ type client struct {
 	clientset *kubernetes.Clientset
 }
 
-type monitoring struct {
-	clusterName string
-	cpu         float64
-	cores       int64
-	nodes       int64
-	totalmemory float64
-	usedmemory  float64
-	disk        float64
-	totaldisk   float64
-	billing     float64
+type Monitoring struct {
+	ClusterName string
+	Cpu         float64
+	Cores       int64
+	Nodes       int64
+	Totalmemory float64
+	Usedmemory  float64
+	Disk        float64
+	Totaldisk   float64
+	Billing     float64
 }
 
-var m *monitoring
+var M *Monitoring
 
 func Getinfo() {
-	m = &monitoring{}
+	M = &Monitoring{}
 
 	// cpu usage for the cluster
 	// kubernetes client
@@ -94,25 +94,25 @@ func Getinfo() {
 
 	// now we have all the info regarding the cpu usage, memory usage, disk usage, etc of the entire cluster
 	// now append the info to the struct
-	m.cpu = float64(cpuUsage)
-	m.cores = cpuCores
-	m.nodes = int64(len(nodes.Items))
-	m.totalmemory = float64(memory)
-	m.usedmemory = float64(memoryUsage)
-	m.disk = float64(diskUsage)
-	m.totaldisk = float64(disk)
+	M.Cpu = float64(cpuUsage)
+	M.Cores = cpuCores
+	M.Nodes = int64(len(nodes.Items))
+	M.Totalmemory = float64(memory)
+	M.Usedmemory = float64(memoryUsage)
+	M.Disk = float64(diskUsage)
+	M.Totaldisk = float64(disk)
 
 }
 
 func Display() {
 	// display the stored info of Getinfo function that is stored in the struct
-	fmt.Println("CPU Usage: ", m.cpu)
-	fmt.Println("CPU Cores: ", m.cores)
-	fmt.Println("Nodes: ", m.nodes)
-	fmt.Println("Total Memory: ", m.totalmemory)
-	fmt.Println("Used Memory: ", m.usedmemory)
-	fmt.Println("Disk Usage: ", m.disk)
-	fmt.Println("Total Disk: ", m.totaldisk)
+	fmt.Println("CPU Usage: ", M.Cpu)
+	fmt.Println("CPU Cores: ", M.Cores)
+	fmt.Println("Nodes: ", M.Nodes)
+	fmt.Println("Total Memory: ", M.Totalmemory)
+	fmt.Println("Used Memory: ", M.Usedmemory)
+	fmt.Println("Disk Usage: ", M.Disk)
+	fmt.Println("Total Disk: ", M.Totaldisk)
 
 }
 
