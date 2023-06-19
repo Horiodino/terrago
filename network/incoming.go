@@ -123,4 +123,20 @@ func DeepPacketInspection() {
 		// this packet.NetworkLayer().NetworkFlow() will give the source and destination ip and port
 		fmt.Printf("Sender :: %s  :: Reciver", packet.NetworkLayer().NetworkFlow())
 
+		fmt.Println(packet.TransportLayer().TransportFlow())
+		fmt.Println(packet.TransportLayer().LayerContents())
+		fmt.Println(packet.TransportLayer().LayerPayload())
+		fmt.Println(packet.TransportLayer().LayerType())
+		fmt.Println(packet.TransportLayer().TransportFlow())
+		fmt.Println(packet.ApplicationLayer().LayerContents())
+		fmt.Println(packet.ApplicationLayer().LayerPayload())
+		fmt.Println(packet.ApplicationLayer().LayerType())
+		fmt.Println(packet.ApplicationLayer().Payload())
+		fmt.Println(packet.Data())
+		fmt.Println(packet.Metadata().CaptureInfo.Timestamp)
+		fmt.Println(packet.Metadata().CaptureInfo.Length)
+		fmt.Println(packet.Metadata().CaptureInfo.InterfaceIndex)
+		fmt.Printf("Error :: %s", packet.ErrorLayer())
+		break
+	}
 }
