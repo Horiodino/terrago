@@ -194,3 +194,26 @@ func AcepptRequest(name, address string) {
 		go handleconnection(conn, name)
 	}
 }
+
+// this handelconnection will handle the connection that is being made to the node
+// it will recieve the data and then process it and then close the connection
+// this is the function that will be called when the connection is made to the node
+func handleconnection(conn net.Conn, name string) {
+	// Read data from the connection
+	buffer := make([]byte, 1024)
+	n, err := conn.Read(buffer)
+	if err != nil {
+		fmt.Println(err)
+		conn.Close()
+		return
+	}
+
+	data := string(buffer[:n])
+	fmt.Printf("[%s] Received data: %s\n", name, data)
+
+	// Process the data (you can replace this with your own logic)
+	// ...
+
+	// Close the connection
+	conn.Close()
+}
