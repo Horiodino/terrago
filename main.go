@@ -25,4 +25,11 @@ func main() {
 
 	// localhost.Host()
 
+	go network.AcepptRequest("Node 1", "localhost:8010")
+	go network.AcepptRequest("Node 2", "localhost:8011")
+
+	// Send data to a specific node
+	network.SendNicInfo("localhost:8011", "hiii i am praful")
+	// sendData("localhost:8001", "")
+
 }
