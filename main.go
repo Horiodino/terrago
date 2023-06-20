@@ -18,7 +18,8 @@ func main() {
 
 	// network.IncomingTraffic()
 	// network.Outbound_Traffic()
-	network.DeepPacketInspection()
+	// network.DeepPacketInspection()
+	// network.GetEndpoints()
 
 	// alerts.PodFailure()
 

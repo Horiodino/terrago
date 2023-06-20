@@ -6,6 +6,7 @@ import (
 
 	"net"
 
+	metrices "github.com/Horiodino/terrago/monitoring"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
 )
@@ -161,5 +162,35 @@ func DeepPacketInspection() {
 		// fmt.Println(packet.NetworkLayer().LayerType().Decode())
 
 		break
+	}
+}
+
+func Nodeip() {
+
+	for _, node := range metrices.NodeInfoList {
+		fmt.Println(node.IP)
+		fmt.Println(node.Name)
+	}
+}
+
+func AcepptRequest(name, address string) {
+	// Start a listener on the given address
+	listener, err := net.Listen("tcp", address)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer listener.Close()
+
+	// Accept incoming connections
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		// Handle the connection in a separate goroutine
+		go handleconnection(conn, name)
 	}
 }

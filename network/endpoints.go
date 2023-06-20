@@ -1,4 +1,4 @@
-package monitoring
+package network
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 )
 
 // getEndpoints will get the endpoints of the cluster using the kubernetes API
-func getEndpoints() {
+func GetEndpoints() {
 
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
@@ -39,13 +39,4 @@ func getEndpoints() {
 	}
 	defer f.Close()
 	f.Write(jsonData)
-
-}
-
-func getHTTPRequests() {
-
-}
-
-func exposedServices() {
-
 }

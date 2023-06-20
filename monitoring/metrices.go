@@ -122,9 +122,10 @@ type NodeInfo struct {
 	CPU     []float64
 	Disk    []float64
 	CpuTemp []float64
+	IP      []string
 }
 
-var nodeInfoList []NodeInfo
+var NodeInfoList []NodeInfo
 
 // cpu usage for the nodes
 func Cpu() ([]NodeInfo, error) {
@@ -188,6 +189,8 @@ func Cpu() ([]NodeInfo, error) {
 		// get the disk usage percentage for the nodes
 		diskUsagePercentage := float64(diskUsage) / float64(diskCapacity) * 100
 
+		Nodeip := node.Status.Addresses[0].Address
+
 		// now append the data to the node struct
 
 		nodeInfo := NodeInfo{
@@ -195,20 +198,22 @@ func Cpu() ([]NodeInfo, error) {
 			CPU:    []float64{cpuUsagePercentage},
 			Memory: []float64{memoryUsagePercentage},
 			Disk:   []float64{diskUsagePercentage},
+			IP:     []string{Nodeip},
 		}
 
-		nodeInfoList = append(nodeInfoList, nodeInfo)
+		NodeInfoList = append(NodeInfoList, nodeInfo)
 	}
 
-	for _, node := range nodeInfoList {
+	for _, node := range NodeInfoList {
 		fmt.Println("Node Name: ", node.Name)
 		fmt.Println("CPU Usage: ", node.CPU)
 		fmt.Println("Memory Usage: ", node.Memory)
 		fmt.Println("Disk Usage: ", node.Disk)
 		fmt.Println("CPU Temperature: ", node.CpuTemp)
+		fmt.Println("IP: ", node.IP)
 	}
 
-	return nodeInfoList, err
+	return NodeInfoList, err
 
 }
 
