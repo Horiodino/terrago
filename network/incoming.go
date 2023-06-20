@@ -136,15 +136,22 @@ func DeepPacketInspection() {
 		fmt.Println("Data Payload :: ", packet.TransportLayer().LayerPayload())
 
 		fmt.Println("---------------------------------------------------------------")
-		fmt.Println(packet.ApplicationLayer().LayerContents())
+
+		// fmt.Println(packet.NetworkLayer().LayerContents())
+		// fmt.Println(packet.Layers())
+
+		// fmt.Println(packet.ApplicationLayer().LayerContents())
 		// fmt.Println(packet.ApplicationLayer().LayerPayload())
 		// fmt.Println(packet.ApplicationLayer().LayerType())
 		// fmt.Println(packet.ApplicationLayer().Payload())
 		// fmt.Println(packet.Data())
-		// fmt.Println(packet.Metadata().CaptureInfo.Timestamp)
-		// fmt.Println(packet.Metadata().CaptureInfo.Length)
-		// fmt.Println(packet.Metadata().CaptureInfo.InterfaceIndex)
-		// fmt.Printf("Error :: %s", packet.ErrorLayer())
+		fmt.Println(packet.Metadata().CaptureInfo.Timestamp)
+
+		// this captureinfo.length will give the length of the packet in bytes
+		fmt.Println("Packet Length ", packet.Metadata().CaptureInfo.Length, "bytes")
+		// this captureinfo.interfaceindex will give the interface index of the network card that is being used to send the packet
+		fmt.Println("Interface Index ", packet.Metadata().CaptureInfo.InterfaceIndex)
+		fmt.Printf("Error :: %s", packet.ErrorLayer())
 		break
 	}
 }
