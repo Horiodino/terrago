@@ -29,7 +29,7 @@ func main() {
 	go network.AcepptRequest("Node 2", "localhost:8011")
 
 	// Send data to a specific node
-	network.SendNicInfo("localhost:8011", "hiii i am praful")
+	network.SendNicInfo("localhost:8011", "hiii i am node 1")
 	// sendData("localhost:8001", "")
 
 }
