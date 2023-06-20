@@ -106,9 +106,6 @@ func DeepPacketInspection() {
 
 	filter := "inbound"
 
-	// now implemetn the logic for deep packet inspection
-	// first get the packet and then get the data from the packet and then check the data for any malicious content
-
 	err = handle.SetBPFFilter(filter)
 	if err != nil {
 		log.Fatal(err)
@@ -154,6 +151,15 @@ func DeepPacketInspection() {
 		fmt.Printf("Error :: %s", packet.ErrorLayer())
 
 		fmt.Println("---------------------------------------------------------------")
+
+		// now we will se the network layer info
+		fmt.Println(packet.NetworkLayer().LayerContents())
+		fmt.Println(packet.NetworkLayer().LayerPayload())
+		fmt.Println(packet.NetworkLayer().LayerType())
+		fmt.Println(packet.NetworkLayer().NetworkFlow())
+		// fmt.Println(packet.NetworkLayer().LayerType().Contains())
+		// fmt.Println(packet.NetworkLayer().LayerType().Decode())
+
 		break
 	}
 }
