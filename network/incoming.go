@@ -217,3 +217,23 @@ func handleconnection(conn net.Conn, name string) {
 	// Close the connection
 	conn.Close()
 }
+
+func SendNicInfo(address, data string) {
+
+	conn, err := net.Dial("tcp", address)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	// Send data to the node
+	_, err = conn.Write([]byte(data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Data sent to", address)
+
+}
