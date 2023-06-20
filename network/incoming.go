@@ -124,7 +124,7 @@ func DeepPacketInspection() {
 		fmt.Printf("Sender :: %s  :: Reciver", packet.NetworkLayer().NetworkFlow())
 		fmt.Println()
 		// TransportLayer.TransportFlow() will give the source and destination port
-		fmt.Printf("Sender :: %s  :: Reciver  ", packet.TransportLayer().TransportFlow())
+		fmt.Printf("Port Address Sender :: %s  :: Reciver  ", packet.TransportLayer().TransportFlow())
 		fmt.Println()
 
 		// TransportLayer.LayerContents() will give the data that is being sent
@@ -152,6 +152,8 @@ func DeepPacketInspection() {
 		// this captureinfo.interfaceindex will give the interface index of the network card that is being used to send the packet
 		fmt.Println("Interface Index ", packet.Metadata().CaptureInfo.InterfaceIndex)
 		fmt.Printf("Error :: %s", packet.ErrorLayer())
+
+		fmt.Println("---------------------------------------------------------------")
 		break
 	}
 }
