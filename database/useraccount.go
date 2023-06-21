@@ -1,4 +1,4 @@
-package api
+package database
 
 const (
 	DatabaseName   = "go_rest_api"
