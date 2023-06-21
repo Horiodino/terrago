@@ -1,9 +1,0 @@
-[
-    {
-        1 65536 lo  up|loopback|running
-    } {
-        2 1500 enp3s0 d8:bb:c1:fb: 9d: 9a up|broadcast|multicast
-    } {
-        3 1500 wlo1 10:a5: 1d: 7c:a9: 61 up|broadcast|multicast|running
-    }
-]

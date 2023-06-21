@@ -174,7 +174,6 @@ func Nodeip() {
 }
 
 func AcepptRequest(name, address string) {
-	// Start a listener on the given address
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		fmt.Println(err)
@@ -182,7 +181,6 @@ func AcepptRequest(name, address string) {
 	}
 	defer listener.Close()
 
-	// Accept incoming connections
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -190,7 +188,6 @@ func AcepptRequest(name, address string) {
 			continue
 		}
 
-		// Handle the connection in a separate goroutine
 		go handleconnection(conn, name)
 	}
 }
@@ -211,10 +208,6 @@ func handleconnection(conn net.Conn, name string) {
 	data := string(buffer[:n])
 	fmt.Printf("[%s] Received data: %s\n", name, data)
 
-	// Process the data (you can replace this with your own logic)
-	// ...
-
-	// Close the connection
 	conn.Close()
 }
 
@@ -227,7 +220,6 @@ func SendNicInfo(address, data string) {
 	}
 	defer conn.Close()
 
-	// Send data to the node
 	_, err = conn.Write([]byte(data))
 	if err != nil {
 		fmt.Println(err)
