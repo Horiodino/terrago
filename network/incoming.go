@@ -2,13 +2,8 @@ package network
 
 import (
 	"fmt"
-	"log"
 
 	"net"
-
-	metrices "github.com/Horiodino/terrago/monitoring"
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/pcap"
 )
 
 // how its going to work ?
@@ -54,4 +49,25 @@ func handleConnection(conn net.Conn, name string) {
 	fmt.Printf("[%s] Received data: %s\n", name, data)
 
 	conn.Close()
+}
+
+// this func will be invoked if user want more details then it will send the request to the node to get more packet details
+// the data string will be constant always
+func GetMoreDetails(address, data string) {
+
+	conn, err := net.Dial("tcp", address)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	_, err = conn.Write([]byte(data))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Data sent to", address)
+
 }

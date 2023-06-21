@@ -18,12 +18,13 @@ import (
 )
 
 type NetworkInfo struct {
-	IP                     string
 	Total_Incoming_Packets int
 	Total_Outgoing_Packets int
 	Total_Data_Rcvd        int
 	Total_Data_Sent        int
 }
+
+var NetworkInfoList []NetworkInfo
 
 type PacketInfo struct {
 	Packet        string
@@ -35,6 +36,8 @@ type PacketInfo struct {
 	Data          string
 	Data_Payload  string
 }
+
+var PacketInfoList []PacketInfo
 
 func Nic_info() {
 	Nicinfo, err := net.Interfaces()
@@ -72,13 +75,15 @@ func IncomingTraffic() {
 	for packet := range packetSource.Packets() {
 		// Process each captured packet here
 		Total_Incoming_Packets++
-		fmt.Println(Total_Incoming_Packets)
-		fmt.Println(packet)
 		Total_Data_Rcvd += packet.Metadata().CaptureInfo.Length
-		fmt.Println("Total Data Rcvd:", Total_Data_Rcvd/1024, "KB")
 
+		NetworkInfo := NetworkInfo{
+			Total_Incoming_Packets: Total_Incoming_Packets,
+			Total_Data_Rcvd:        Total_Data_Rcvd / 1024,
+		}
+
+		NetworkInfoList = append(NetworkInfoList, NetworkInfo)
 	}
-	fmt.Println("Total packets arrived:", Total_Incoming_Packets)
 }
 
 func Outbound_Traffic() {
@@ -103,10 +108,15 @@ func Outbound_Traffic() {
 		// Process each captured packet here
 		Total_Outgoing_Packets++
 		fmt.Println(Total_Outgoing_Packets)
-		fmt.Println(packet)
 		Total_Data_Sent += packet.Metadata().CaptureInfo.Length
 		fmt.Println("Total Data Sent:", Total_Data_Sent/1024, "KB")
 
+		NetworkInfo := NetworkInfo{
+			Total_Outgoing_Packets: Total_Outgoing_Packets,
+			Total_Data_Sent:        Total_Data_Sent / 1024,
+		}
+
+		NetworkInfoList = append(NetworkInfoList, NetworkInfo)
 	}
 
 	fmt.Println("Total packets arrived:", Total_Outgoing_Packets)
@@ -224,6 +234,11 @@ func handleconnection(conn net.Conn, name string) {
 	}
 
 	data := string(buffer[:n])
+
+	if data == "packetinfo" {
+		DeepPacketInspection()
+	}
+
 	fmt.Printf("[%s] Received data: %s\n", name, data)
 
 	conn.Close()
