@@ -16,7 +16,7 @@ type FailureStatus struct {
 	Pods []PodsFailure
 }
 
-type PodsFailure struct {
+type PodsFailure struct { 
 	PodName string
 	Created string
 	Age     string
@@ -176,7 +176,6 @@ func PodFailure() {
 			fmt.Println("IP: " + PodsFailure.IP)
 			fmt.Println("CID: " + PodsFailure.CID)
 			fmt.Println("Image: " + PodsFailure.Image)
-			fmt.Println("State: " + PodsFailure.State)
 			fmt.Println("Restart: " + PodsFailure.Restart)
 			fmt.Println("Ready: " + fmt.Sprintf("%t", PodsFailure.Ready))
 			fmt.Println("Labels: " + fmt.Sprintf("%v", PodsFailure.Labels))
@@ -184,3 +183,5 @@ func PodFailure() {
 		}
 	}
 }
+
+func 
