@@ -9,7 +9,6 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/tools/go/analysis/passes/defers"
 )
 
 func DBinstance() *mongo.Client {
