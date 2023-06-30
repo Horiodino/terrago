@@ -1,6 +1,10 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	helpers "github.com/Horiodino/terrago/Database/jwt/helpers"
+	models "github.com/Horiodino/terrago/Database/jwt/models"
+)
 
 func AuthRoutes(incoming Routes *gin.Engine){
 	incomingRoutes.POST("users/signup",controller.Signup)
@@ -10,7 +14,7 @@ func AuthRoutes(incoming Routes *gin.Engine){
 
 func UserRoutes(incoming Routes *gin.Engine){
 	incomingRoutes.Use(middleware.Autentication)
-	incomingRoutes.GET("/user",GetUser())
+	incomingRoutes.GET("/users",GetUsers())
 	incomingRoutes.GET("/user/:user_id",GetUser())
 	
 }
