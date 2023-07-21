@@ -49,7 +49,7 @@ yep the values are a littble bit wrong because its not in the mb unit , going to
 output:
 ```
 |-------------------------------------|
-Node Name:  [ip-172-31-0-249.ap-south-1.compute.internal]
+Node Name:  [its linked to ip so cant show here ]
 CPU Usage:  [1.4500000000000002]
 Memory Usage:  [11.490279375396868]
 Disk Usage:  [0]
@@ -58,7 +58,7 @@ IP:  [IP]
 |-------------------------------------|
 
 |-------------------------------------|
-Node Name:  [ip-172-31-39-153.ap-south-1.compute.internal]
+Node Name:  [its linked to ip so cant show here ]
 CPU Usage:  [1.25]
 Memory Usage:  [10.541424403861058]
 Disk Usage:  [0]
