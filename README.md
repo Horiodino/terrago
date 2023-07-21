@@ -19,15 +19,19 @@ and making it more precise in terms of giving more detail info
 
 installation:
 
-``` git clone https://github.com/Horiodino/terrago.git```
-``` cd terrago ```
-```go build -o terrago main.go```
+```
+git clone https://github.com/Horiodino/terrago.git
+cd terrago 
+go build -o terrago main.go
+```
+
 
 Cli uses:
 
 ```./terrago clusterinfo```
 
-output: ```
+output:
+```
 CPU Usage:  52
 CPU Cores:  4
 Nodes:  2
@@ -35,9 +39,10 @@ Total Memory:  8.076025856e+09
 Used Memory:  8.90318848e+08
 Disk Usage:  0
 Total Disk:  4.2924466176e+10
-[holiodin@fedora k8s-monitor-tool]$ ```
+```
 
-yep the values are a littble bit wrong because its not in the mb unit , going to fix soon
+yep the values are a littble bit wrong because its not in the mb unit , going to fix soon 😅
+
 
 ```./terrago nodeinfo```
 
