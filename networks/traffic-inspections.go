@@ -4,7 +4,7 @@
 // first we will make a connection from the node in which the code is running to the other node
 // in which our main code is running and then we will get the network info from the node network interface card
 
-package network
+package networks
 
 import (
 	"fmt"
@@ -27,14 +27,14 @@ type NetworkInfo struct {
 var NetworkInfoList []NetworkInfo
 
 type PacketInfo struct {
-	Packet        string
-	SourceIP      string
-	DestinationIP string
-	SourcePort    string
-	Destination   string
-	Protocol      string
-	Data          string
-	Data_Payload  string
+	Packet        string	'json:"packet"'
+	SourceIP      string	'json:"sourceip"'
+	DestinationIP string 'json:"destinationip"'
+	SourcePort    string	'json:"sourceport"'
+	Destination   string	'json:"destinationport"'
+	Protocol      string	'json:"protocol"'
+	Data          string	'json:"data"'
+	Data_Payload  string	'json:"data_payload"'
 }
 
 var PacketInfoList []PacketInfo

@@ -1,4 +1,4 @@
-package monitoring
+package clustermetrices
 
 // here we will get the info regarding the cluster and its components
 
@@ -167,31 +167,19 @@ func Cpu() ([]NodeInfo, error) {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		// get the cpu usage for the nodes
 		cpuUsage := metrics.Usage.Cpu().MilliValue()
-		// get the cpu cores for the nodes
 		cpuCores := node.Status.Capacity.Cpu().MilliValue()
-		// get the cpu usage percentage for the nodes
 		cpuUsagePercentage := float64(cpuUsage) / float64(cpuCores) * 100
-
-		// get the memory usage for the nodes
 		memoryUsage := metrics.Usage.Memory().Value()
 		// get the memory capacity for the nodes
 		memoryCapacity := node.Status.Capacity.Memory().Value()
 		// get the memory usage percentage for the nodes
 		memoryUsagePercentage := float64(memoryUsage) / float64(memoryCapacity) * 100
-
-		// get the disk usage for the nodes
 		diskUsage := metrics.Usage.StorageEphemeral().Value()
-		// get the disk capacity for the nodes
 		diskCapacity := node.Status.Capacity.StorageEphemeral().Value()
-		// get the disk usage percentage for the nodes
 		diskUsagePercentage := float64(diskUsage) / float64(diskCapacity) * 100
 
 		Nodeip := node.Status.Addresses[0].Address
-
-		// now append the data to the node struct
 
 		nodeInfo := NodeInfo{
 			Name:   []string{node.Name},
@@ -231,10 +219,8 @@ type resources struct {
 	persistentvolumeclaims string
 }
 
-// now we will decalre an array of the struct which we created above
 var resourcesList []resources
 
-// we will get the info regarding the cluster and its components
 func ClusterInfo() ([]resources, error) {
 
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
@@ -354,7 +340,6 @@ type namespacestruct struct {
 var namespacesList []namespacestruct
 
 func NamespacesInfo() ([]namespacestruct, error) {
-	// we will get the info for a particular namespace like
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
@@ -377,7 +362,7 @@ func NamespacesInfo() ([]namespacestruct, error) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		////// PENDING GET ALL THE RESOURCES NAMES
+
 		services, err := clientset.CoreV1().Services(namespace.Name).List(context.Background(), metav1.ListOptions{})
 		if err != nil {
 			log.Fatal(err)
@@ -443,26 +428,6 @@ func NamespacesInfo() ([]namespacestruct, error) {
 		}
 
 		namespacesList = append(namespacesList, namespaceInfo)
-	}
-
-	for _, namespace := range namespacesList {
-		fmt.Println("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
-		fmt.Println("┃ Namespace Name: ", namespace.namespaceName)
-		fmt.Println("┃ Pods: ", namespace.nspods)
-		fmt.Println("┃ Services: ", namespace.nsservices)
-		fmt.Println("┃ Ingresses: ", namespace.nsingresses)
-		fmt.Println("┃ Deployments: ", namespace.nsdeployments)
-		fmt.Println("┃ Statefulsets: ", namespace.nsstatefulsets)
-		fmt.Println("┃ Daemonsets: ", namespace.nsdaemonsets)
-		fmt.Println("┃ Configmaps: ", namespace.nsconfimap)
-		fmt.Println("┃ Secrets: ", namespace.nssecret)
-		fmt.Println("┃ Persistent Volume Claims: ", namespace.nspersistentvolumeclaims)
-		fmt.Println("┃ Persistent Volumes: ", namespace.nspersistentvolumes)
-		fmt.Println("┃ Jobs: ", namespace.nsjobs)
-		fmt.Println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
-		fmt.Println("")
-		fmt.Println("")
-
 	}
 
 	return namespacesList, nil
@@ -811,110 +776,5 @@ func GetnamespaceInfoDetailed() {
 		}
 
 		NamespacesListDetailed = append(NamespacesListDetailed, namespaceInfoDetailed)
-
-	}
-
-	for _, info := range NamespacesListDetailed {
-		fmt.Println("┏━━" + info.namespaceName + "━━━")
-		fmt.Println("┃")
-		// for _, pod := range info.nspods {
-		// 	fmt.Println("┃ Pod Name: ", pod.podName)
-		// 	fmt.Println("┃ Pod Status: ", pod.poStatus)
-		// 	fmt.Println("┃ Pod CPU: ", pod.podCPU)
-		// 	fmt.Println("┃ Pod Memory: ", pod.podMEM)
-		// 	for _, image := range pod.poImages {
-		// 		fmt.Println(" Pod Image: ", image)
-		// 	}
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
-		for _, service := range info.nsservices {
-			fmt.Println("┃ Service Name: ", service.serviceName)
-			fmt.Println("┃ Service Type: ", service.serviceType)
-			fmt.Println("┃ Service Target: ", service.serviceTarget)
-			fmt.Println("┃ Service Target Port: ", service.serviceTargetname)
-			fmt.Println("┃")
-			fmt.Println("┃")
-		}
-		// for _, ingress := range info.nsingresses {
-		// 	fmt.Println("┃ Ingress Name: ", ingress.ingressName)
-		// 	fmt.Println("┃ Ingress Host: ", ingress.ingressHost)
-		// 	fmt.Println("┃ Ingress Path: ", ingress.ingressPath)
-		// 	fmt.Println("┃ Ingress Target: ", ingress.ingressTarget)
-		// 	fmt.Println("┃ Ingress Target Port: ", ingress.ingressTargetPort)
-		// 	fmt.Println("┃ Ingress LB Type: ", ingress.ingressesLBtype)
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
-
-		// for _, deployment := range info.nsdeployments {
-		// 	fmt.Println("┃ Deployment Name: ", deployment.deploymentName)
-		// 	fmt.Println("┃ Deployment Replicas: ", deployment.deploymentReplicas)
-		// 	fmt.Println("┃ Deployment Status: ", deployment.deploymentStatus)
-		// 	fmt.Println("┃ Deployment Strategy: ", deployment.deploymentStrategy)
-		// 	for _, image := range deployment.deploymentImages {
-		// 		fmt.Println(" Deployment Image: ", image)
-		// 	}
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
-		// for _, statefulset := range info.nsstatefulsets {
-		// 	fmt.Println("┃ Statefulset Name: ", statefulset.statefulsetName)
-		// 	fmt.Println("┃ Statefulset Replicas: ", statefulset.statefulsetReplicas)
-		// 	fmt.Println("┃ Statefulset Status: ", statefulset.statefulsetStatus)
-		// 	fmt.Println("┃ Statefulset Strategy: ", statefulset.statefulsetStrategy)
-		// 	for _, image := range statefulset.statefulsetImages {
-		// 		fmt.Println(" Statefulset Image: ", image)
-		// 	}
-
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
-
-		// for _, daemonset := range info.nsdaemonsets {
-		// 	fmt.Println("┃ Daemonset Name: ", daemonset.daemonsetName)
-		// 	fmt.Println("┃ Daemonset Namespace: ", daemonset.daemonsetNamespace)
-		// 	fmt.Println("┃ Daemonset Labels: ", daemonset.daemonsetLabels)
-		// 	fmt.Println("┃ Daemonset Matchlables: ", daemonset.daemonsetMatchlables)
-		// 	for _, container := range daemonset.daemonsetContainers {
-		// 		fmt.Println(" Daemonset Container: ", container)
-
-		// 	}
-		// 	fmt.Println("┃ Daemonset Terminationperiod: ", daemonset.daemonsetTerminationperiod)
-		// 	for _, volume := range daemonset.daemonsetVolumes {
-		// 		fmt.Println(" Daemonset Volume: ", volume)
-		// 	}
-		// 	for _, volumemount := range daemonset.daemonsetVolumemount {
-		// 		fmt.Println(" Daemonset Volumemount: ", volumemount)
-		// 	}
-		// 	fmt.Println("┃ Daemonset Status: ", daemonset.daemonsetStatus)
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
-
-		// for _, confimap := range info.nsconfimap {
-		// 	fmt.Println("┃ Configmap Name: ", confimap.confimapName)
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
-
-		// for _, secret := range info.nssecret {
-		// 	fmt.Println("┃ Secret Name: ", secret.secretName)
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
-
-		// for _, pvc := range info.nspersistentvolumeclaims {
-		// 	fmt.Println("┃ PVC Name: ", pvc.pvc_Name)
-		// 	fmt.Println("┃ PVC Labels: ", pvc.pvc_Labels)
-		// 	fmt.Println("┃ PVC Status: ", pvc.pvc_tatus)
-		// 	fmt.Println("┃ PVC Volume: ", pvc.pvc_Volume)
-		// 	fmt.Println("┃ PVC Size: ", pvc.pvc_Size)
-		// 	fmt.Println("┃ PVC Access Mode: ", pvc.pvc_AcessMode)
-		// 	fmt.Println("┃")
-		// 	fmt.Println("┃")
-		// }
-
-		fmt.Println("┗━━━━━━ ")
 	}
 }
