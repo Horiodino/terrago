@@ -10,6 +10,7 @@ import (
 	// Kubernetes API client libraries and packages
 	// ".mongodb.org/mongo-driver/mongo"go
 
+	"github.com/fatih/color"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -65,7 +66,7 @@ func Getinfo() {
 	}
 	var cpuUsage int64
 	for _, node := range metrics.Items {
-		cpuUsage += node.Usage.Cpu().MilliValue()
+		cpuUsage += (node.Usage.Cpu().MilliValue())
 	}
 	nodes, err := clientset.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
@@ -73,26 +74,26 @@ func Getinfo() {
 	}
 	var cpuCores int64
 	for _, node := range nodes.Items {
-		cpuCores += node.Status.Capacity.Cpu().Value()
+		cpuCores += (node.Status.Capacity.Cpu().Value())
 	}
 	var memoryUsage int64
 	for _, node := range metrics.Items {
-		memoryUsage += node.Usage.Memory().Value()
+		memoryUsage += (node.Usage.Memory().Value()) / 1000000
 	}
 	var memory int64
 	for _, node := range nodes.Items {
-		memory += node.Status.Capacity.Memory().Value()
+		memory += (node.Status.Capacity.Memory().Value()) / 1000000
 	}
 	var diskUsage int64
 	for _, node := range metrics.Items {
-		diskUsage += node.Usage.StorageEphemeral().Value()
+		diskUsage += (node.Usage.StorageEphemeral().Value()) / 1000000
 	}
 	var disk int64
 	for _, node := range nodes.Items {
-		disk += node.Status.Capacity.StorageEphemeral().Value()
+		disk += (node.Status.Capacity.StorageEphemeral().Value()) / 1000000
 	}
 
-	// now we have all the info regarding the cpu usage, memory usage, disk usage, etc of the entire cluster
+	// now we have all the info regar	"github.com/fatih/color"ding the cpu usage, memory usage, disk usage, etc of the entire cluster
 	// now append the info to the struct
 	M.Cpu = float64(cpuUsage)
 	M.Cores = cpuCores
@@ -106,13 +107,15 @@ func Getinfo() {
 
 func Display() {
 	// display the stored info of Getinfo function that is stored in the struct
+	color.Green("--------------------Cluster Info---------------------")
 	fmt.Println("CPU Usage: ", M.Cpu)
 	fmt.Println("CPU Cores: ", M.Cores)
 	fmt.Println("Nodes: ", M.Nodes)
-	fmt.Println("Total Memory: ", M.Totalmemory)
-	fmt.Println("Used Memory: ", M.Usedmemory)
-	fmt.Println("Disk Usage: ", M.Disk)
-	fmt.Println("Total Disk: ", M.Totaldisk)
+	fmt.Println("Total Memory: ", M.Totalmemory, "Mb")
+	fmt.Println("Used Memory: ", M.Usedmemory, "Mb")
+	fmt.Println("Disk Usage: ", M.Disk, "Mb")
+	fmt.Println("Total Disk: ", M.Totaldisk, "Mb")
+	color.Green("-----------------------------------------------------")
 
 }
 
@@ -192,20 +195,11 @@ func Cpu() ([]NodeInfo, error) {
 		NodeInfoList = append(NodeInfoList, nodeInfo)
 	}
 
-	for _, node := range NodeInfoList {
-		fmt.Println("Node Name: ", node.Name)
-		fmt.Println("CPU Usage: ", node.CPU)
-		fmt.Println("Memory Usage: ", node.Memory)
-		fmt.Println("Disk Usage: ", node.Disk)
-		fmt.Println("CPU Temperature: ", node.CpuTemp)
-		fmt.Println("IP: ", node.IP)
-	}
-
 	return NodeInfoList, err
 
 }
 
-type resources struct {
+type Resources struct {
 	pods                   string
 	services               string
 	ingresses              string
@@ -219,9 +213,9 @@ type resources struct {
 	persistentvolumeclaims string
 }
 
-var resourcesList []resources
+var ResourcesList []Resources
 
-func ClusterInfo() ([]resources, error) {
+func ClusterInfo() ([]Resources, error) {
 
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
@@ -289,7 +283,7 @@ func ClusterInfo() ([]resources, error) {
 		log.Fatal(err)
 	}
 
-	resourcesList = append(resourcesList, resources{
+	ResourcesList = append(ResourcesList, Resources{
 
 		pods:                   strconv.Itoa(len(po.Items)),
 		services:               strconv.Itoa(len(svc.Items)),
@@ -304,7 +298,10 @@ func ClusterInfo() ([]resources, error) {
 		persistentvolumeclaims: strconv.Itoa(len(pvc.Items)),
 	})
 
-	for _, resource := range resourcesList {
+	return ResourcesList, nil
+}
+func ObjectDisplay() {
+	for _, resource := range ResourcesList {
 		fmt.Println("Pods: ", resource.pods)
 		fmt.Println("Services: ", resource.services)
 		fmt.Println("Ingresses: ", resource.ingresses)
@@ -317,8 +314,6 @@ func ClusterInfo() ([]resources, error) {
 		fmt.Println("Persistent Volumes: ", resource.persistentvolumes)
 		fmt.Println("Persistent Volume Claims: ", resource.persistentvolumeclaims)
 	}
-
-	return resourcesList, nil
 }
 
 // works till here
@@ -337,7 +332,7 @@ type namespacestruct struct {
 	nsjobs                   []string
 }
 
-var namespacesList []namespacestruct
+var NamespacesList []namespacestruct
 
 func NamespacesInfo() ([]namespacestruct, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
@@ -427,10 +422,26 @@ func NamespacesInfo() ([]namespacestruct, error) {
 			nsjobs:                   []string{strconv.Itoa(len(jobs.Items))},
 		}
 
-		namespacesList = append(namespacesList, namespaceInfo)
+		NamespacesList = append(NamespacesList, namespaceInfo)
 	}
 
-	return namespacesList, nil
+	return NamespacesList, nil
+}
+func Displaynsinfo() {
+	for _, namespace := range NamespacesList {
+		fmt.Printf("Namespace Name: %s\n", namespace.namespaceName)
+		fmt.Printf("Pods: %s\n", namespace.nspods)
+		fmt.Printf("Services: %s\n", namespace.nsservices)
+		fmt.Printf("Ingresses: %s\n", namespace.nsingresses)
+		fmt.Printf("Deployments: %s\n", namespace.nsdeployments)
+		fmt.Printf("Statefulsets: %s\n", namespace.nsstatefulsets)
+		fmt.Printf("Daemonsets: %s\n", namespace.nsdaemonsets)
+		fmt.Printf("Configmaps: %s\n", namespace.nsconfimap)
+		fmt.Printf("Secrets: %s\n", namespace.nssecret)
+		fmt.Printf("Persistent Volume Claims: %s\n", namespace.nspersistentvolumeclaims)
+		fmt.Printf("Persistent Volumes: %s\n", namespace.nspersistentvolumes)
+		fmt.Printf("Jobs: %s\n", namespace.nsjobs)
+	}
 }
 
 type namespaceInfoDetailed struct {
