@@ -23,10 +23,13 @@ installation:
 git clone https://github.com/Horiodino/terrago.git
 cd terrago 
 go build -o terrago main.go
+./terrago init
 ```
 
 
 Cli uses:
+
+
 
 ```./terrago clusterinfo```
 
@@ -41,7 +44,6 @@ Disk Usage:  0
 Total Disk:  4.2924466176e+10
 ```
 
-yep the values are a littble bit wrong because its not in the mb unit , going to fix soon 😅
 
 
 ```./terrago nodeinfo```
