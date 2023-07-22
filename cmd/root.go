@@ -3,8 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	metrices "github.com/Horiodino/terrago/cluster-metrices"
+	"github.com/Horiodino/terrago/networks"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -58,12 +61,27 @@ var Objects = &cobra.Command{
 		metrices.ObjectDisplay()
 	},
 }
+var Getendpoint = &cobra.Command{
+	Use:   "getendpoint",
+	Short: "Get endpoint",
+	Run: func(cmd *cobra.Command, args []string) {
+		networks.GetEndpoints()
+	},
+}
+var Startserver = &cobra.Command{
+	Use:   "init",
+	Short: "deploys metrics server",
+	Run: func(cmd *cobra.Command, args []string) {
+		metriceserver()
+	},
+}
 
 func init() {
 	rootCmd.AddCommand(clusterInfoCmd)
 	rootCmd.AddCommand(Nodeinfo)
 	rootCmd.AddCommand(Objects)
 	rootCmd.AddCommand(Nsinfo)
+	rootCmd.AddCommand(Startserver)
 }
 
 func Execute() {
@@ -71,4 +89,18 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func metriceserver() {
+	color.Blue("Deploying metrics server...")
+	cmd := exec.Command("kubectl", "apply", "-f", "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
+
+	fmt.Println()
+	metriceserverstate()
+
+	color.Blue("now you can run 'terrago clusterinfo' to get cluster information")
+
 }
