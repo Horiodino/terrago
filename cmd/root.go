@@ -83,6 +83,7 @@ func init() {
 	rootCmd.AddCommand(Nsinfo)
 	rootCmd.AddCommand(Startserver)
 	rootCmd.AddCommand(Network)
+	rootCmd.AddCommand(WebCmd)
 }
 
 func Execute() {
