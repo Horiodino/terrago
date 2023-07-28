@@ -4,6 +4,7 @@ package clustermetrices
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -93,8 +94,6 @@ func Getinfo() {
 		disk += (node.Status.Capacity.StorageEphemeral().Value()) / 1000000
 	}
 
-	// now we have all the info regar	"github.com/fatih/color"ding the cpu usage, memory usage, disk usage, etc of the entire cluster
-	// now append the info to the struct
 	M.Cpu = float64(cpuUsage)
 	M.Cores = cpuCores
 	M.Nodes = int64(len(nodes.Items))
@@ -102,6 +101,32 @@ func Getinfo() {
 	M.Usedmemory = float64(memoryUsage)
 	M.Disk = float64(diskUsage)
 	M.Totaldisk = float64(disk)
+
+	M := &Monitoring{
+		Cpu:         M.Cpu,
+		Cores:       M.Cores,
+		Nodes:       M.Nodes,
+		Totalmemory: M.Totalmemory,
+		Usedmemory:  M.Usedmemory,
+		Disk:        M.Disk,
+		Totaldisk:   M.Totaldisk,
+		Billing:     M.Billing,
+	}
+	data := map[string]Monitoring{"Metrics": *M}
+
+	jsonFile, err := os.Create("clusterinfo.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer jsonFile.Close()
+
+	// Encode the map as JSON and write it to the file
+	encoder := json.NewEncoder(jsonFile)
+	err = encoder.Encode(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("......")
 
 }
 
@@ -317,7 +342,7 @@ func ObjectDisplay() {
 }
 
 // works till here
-type namespacestruct struct {
+type Namespacestruct struct {
 	namespaceName            string
 	nspods                   []string
 	nsservices               []string
@@ -332,9 +357,9 @@ type namespacestruct struct {
 	nsjobs                   []string
 }
 
-var NamespacesList []namespacestruct
+var NamespacesList []Namespacestruct
 
-func NamespacesInfo() ([]namespacestruct, error) {
+func NamespacesInfo() ([]Namespacestruct, error) {
 	config, err := clientcmd.BuildConfigFromFlags("", os.Getenv("HOME")+"/.kube/config")
 	if err != nil {
 		log.Fatal(err)
@@ -407,7 +432,7 @@ func NamespacesInfo() ([]namespacestruct, error) {
 			log.Fatal(err)
 		}
 
-		namespaceInfo := namespacestruct{
+		namespaceInfo := Namespacestruct{
 			namespaceName:            nsname,
 			nspods:                   []string{strconv.Itoa(len(pods.Items))},
 			nsservices:               []string{strconv.Itoa(len(services.Items))},
