@@ -18,31 +18,51 @@
   <p><strong>Total Disk:</strong> <span id="totalDisk"></span></p>
   <p><strong>Billing:</strong> <span id="billing"></span></p>
 
-  <h2>Node Info</h2>
-  <ul id="nodeInfoList">
-  </ul>
 
-  <script>
-    function fetchData() {
-      fetch("/data")
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById("clusterName").textContent = data.Monitoring.ClusterName;
-          document.getElementById("cpu").textContent = data.Monitoring.Cpu;
-          document.getElementById("cores").textContent = data.Monitoring.Cores;
-          document.getElementById("nodes").textContent = data.Monitoring.Nodes;
-          document.getElementById("totalMemory").textContent = data.Monitoring.Totalmemory;
-          document.getElementById("usedMemory").textContent = data.Monitoring.Usedmemory;
-          document.getElementById("disk").textContent = data.Monitoring.Disk;
-          document.getElementById("totalDisk").textContent = data.Monitoring.Totaldisk;
-          document.getElementById("billing").textContent = data.Monitoring.Billing;
+<h2>Node Info</h2>
+<ul id="nodeInfoList">
+</ul>
 
-          // Update Node Info
-          const nodeInfoList = document.getElementById("nodeInfoList");
-          nodeInfoList.innerHTML = ''; // Clear existing data
+<script>
+  let intervalId = null; 
 
-          data.NodeInfoList.forEach(node => {
-            const nodeElement = document.createElement('li');
+  function fetchData() {
+    fetch("/data")
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("clusterName").textContent = data.Monitoring.ClusterName;
+        document.getElementById("cpu").textContent = data.Monitoring.Cpu;
+        document.getElementById("cores").textContent = data.Monitoring.Cores;
+        document.getElementById("nodes").textContent = data.Monitoring.Nodes;
+        document.getElementById("totalMemory").textContent = data.Monitoring.Totalmemory;
+        document.getElementById("usedMemory").textContent = data.Monitoring.Usedmemory;
+        document.getElementById("disk").textContent = data.Monitoring.Disk;
+        document.getElementById("totalDisk").textContent = data.Monitoring.Totaldisk;
+        document.getElementById("billing").textContent = data.Monitoring.Billing;
+
+        // update node info
+        const nodeInfoList = document.getElementById("nodeInfoList");
+
+        data.NodeInfoList.forEach(node => {
+          // check if the node is already displayed
+          const nodeElement = document.getElementById(node.Name);
+          if (!nodeElement) {
+            // display the node information for the first time
+            const newNodeElement = document.createElement('li');
+            newNodeElement.id = node.Name; // use the node name as the element id
+            newNodeElement.setAttribute('data-fetched', 'true'); 
+            newNodeElement.innerHTML = `
+              <strong>Node Name:</strong> ${node.Name}<br>
+              <strong>CPU:</strong> ${node.CPU}<br>
+              <strong>Memory:</strong> ${node.Memory}<br>
+              <strong>Disk:</strong> ${node.Disk}<br>
+              <strong>CPU Temperature:</strong> ${node.CpuTemp}<br>
+              <strong>IP:</strong> ${node.IP}<br>
+              <br>
+            `;
+            nodeInfoList.appendChild(newNodeElement);
+          } else {
+            // update existing node element with the latest data
             nodeElement.innerHTML = `
               <strong>Node Name:</strong> ${node.Name}<br>
               <strong>CPU:</strong> ${node.CPU}<br>
@@ -52,235 +72,24 @@
               <strong>IP:</strong> ${node.IP}<br>
               <br>
             `;
-            nodeInfoList.appendChild(nodeElement);
-          });
+          }
         });
-    }
+      });
+  }
 
-    fetchData(); // Initial fetch
-    setInterval(fetchData, 5000); // Fetch every 5 seconds
-  </script>
+  function startFetching() {
+    if (intervalId) {
+      clearInterval(intervalId); 
+    }
+    fetchData();
+    intervalId = setInterval(fetchData, 5000);
+  }
+
+  startFetching(); 
+
+</script>
 </body>
 </html>
 
 
 
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitoring Data</title>
-</head>
-<body>
-  <h1>Monitoring Data</h1>
-
-  <p><strong>Cluster Name:</strong> {{.ClusterName}}</p>
-  <p><strong>CPU:</strong> {{.Cpu}}</p>
-  <p><strong>Cores:</strong> {{.Cores}}</p>
-  <p><strong>Nodes:</strong> {{.Nodes}}</p>
-  <p><strong>Total Memory:</strong> {{.Totalmemory}}</p>
-  <p><strong>Used Memory:</strong> {{.Usedmemory}}</p>
-  <p><strong>Disk:</strong> {{.Disk}}</p>
-  <p><strong>Total Disk:</strong> {{.Totaldisk}}</p>
-  <p><strong>Billing:</strong> {{.Billing}}</p>
-
-  <div>
-    <label for="slider1">Slider 1:</label>
-    <label class="switch">
-      <input type="checkbox" id="slider1" onchange="sendRequest(this.checked)">
-      <span class="slider round"></span>
-    </label>
-  </div>
-
-  <div>
-    <label for="slider2">Slider 2:</label>
-    <label class="switch">
-      <input type="checkbox" id="slider2" onchange="sendRequest(this.checked)">
-      <span class="slider round"></span>
-    </label>
-  </div>
-
-  <script>
-    function sendRequest(checked) {
-      const xhttp = new XMLHttpRequest();
-      const url = `http://localhost:8000/hello?status=${checked}`;
-      xhttp.open('GET', url, true);
-      xhttp.send();
-    }
-  </script>
-
-  <style>
-  </style>
-</body>
-</html> -->
-
-
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitoring Data</title>
-</head>
-<body>
-  <h1>Monitoring Data</h1>
-
-  <p><strong>Cluster Name:</strong> {{.ClusterName}}</p>
-  <p><strong>CPU:</strong> {{.Cpu}}</p>
-  <p><strong>Cores:</strong> {{.Cores}}</p>
-  <p><strong>Nodes:</strong> {{.Nodes}}</p>
-  <p><strong>Total Memory:</strong> {{.Totalmemory}}</p>
-  <p><strong>Used Memory:</strong> {{.Usedmemory}}</p>
-  <p><strong>Disk:</strong> {{.Disk}}</p>
-  <p><strong>Total Disk:</strong> {{.Totaldisk}}</p>
-  <p><strong>Billing:</strong> {{.Billing}}</p>
-
-  <div>
-    <label for="slider1">Slider 1:</label>
-    <label class="switch">
-      <input type="checkbox" id="slider1" onchange="sendRequest(this.checked)">
-      <span class="slider round"></span>
-    </label>
-  </div>
-
-  <div>
-    <label for="slider2">Slider 2:</label>
-    <label class="switch">
-      <input type="checkbox" id="slider2" onchange="sendRequest(this.checked)">
-      <span class="slider round"></span>
-    </label>
-  </div>
-
-  <script>
-    function sendRequest(checked) {
-      const xhttp = new XMLHttpRequest();
-      const url = `http://localhost:8000/hello?status=${checked}`;
-      xhttp.open('GET', url, true);
-      xhttp.send();
-    }
-  </script>
-
-  <style>
-  </style>
-</body>
-</html> -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Toggle Sliders</title>
-</head>
-<body>
-  <h1>Toggle Sliders</h1>
-
-  <div>
-    <label for="slider1">Slider 1:</label>
-    <label class="switch">
-      <input type="checkbox" id="slider1">
-      <span class="slider round"></span>
-    </label>
-  </div>
-
-  <div>
-    <label for="slider2">Slider 2:</label>
-    <label class="switch">
-      <input type="checkbox" id="slider2">
-      <span class="slider round"></span>
-    </label>
-  </div>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      border-radius: 34px;
-      transition: .4s;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      border-radius: 50%;
-      transition: .4s;
-    }
-
-    input:checked + .slider {
-      background-color: #2196F3;
-    }
-
-    input:focus + .slider {
-      box-shadow: 0 0 1px #2196F3;
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-
-    .slider.round {
-      border-radius: 34px;
-    }
-
-    .slider.round:before {
-      border-radius: 50%;
-    }
-  </style>
-</body>
-</html> -->
