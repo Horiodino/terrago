@@ -1,10 +1,8 @@
 package api
 
 import (
-	"context"
 	"log"
 	"os"
-	"time"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -61,24 +59,25 @@ type Pullinfo interface {
 	PullPodDisruptionBudgetInfoV1Beta1(c *client) (string, error)
 }
 
-type AllInfo interface {
-	//take time and data to get the info feom hte file
-	SaveClusterInfo(c context.Context, Date, Time time.Time) (string, error)
-	SaveNodeInfo(c context.Context, Date, Time time.Time) (string, error)
-	SavePodInfo(c context.Context, Date, Time time.Time) (string, error)
-	SaveNamespaceInfo(c context.Context, Date, Time time.Time) (string, error)
+type NICINFO interface {
+	Nicinfo()
+	GetEndpoints()
+	GetNodeIP()
+	AcceptRequest()
+}
+type DISKINFO interface {
 }
 
-type SavedInfo struct {
-	AllInfo
-	context.Context
-	ClusterInfo *ClusterInfoStruct
-	NodeInfo    *NodeInfoStruct
+type MEMORY interface {
 }
 
 type ClusterInfoStruct struct {
 }
+
 type NodeInfoStruct struct {
+	NICINFO
+	DISKINFO
+	MEMORY
 }
 
 type client struct {
