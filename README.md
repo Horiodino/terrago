@@ -1,5 +1,9 @@
 UNDER-CONSTRUCTION 🚸
-Terrago 
+
+
+Terrago NOW IS LANC  https://github.com/Horiodino/lanc
+
+
 name is very odd right 🥸 i agree but what it is ?
 it is a simple metrices collector and displays it on localhost
 right now it just simply supports displaying the metrices on the screen  
